@@ -16,6 +16,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@jest/expect": "^29.7.0",
     "@tailwindcss/vite": "^4.0.1",
     "@zougt/vite-plugin-theme-preprocessor": "^1.4.8",
     "axios": "^1.7.9",
