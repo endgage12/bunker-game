@@ -9,12 +9,17 @@
     >
       {{ menuItem }}
     </el-button>
+
+    <el-button class="!mt-8" type="primary" @click="cardGenerate('profession')">
+      Сгенерировать карточку
+    </el-button>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import axios from 'axios'
 
 const router = useRouter()
 
@@ -31,6 +36,10 @@ const menu = ref([
 
 const goTo = (menuItem: string) => {
   router.push({ name: 'settings-setting-edit', params: { settingName: menuItem } })
+}
+
+const cardGenerate = async (title: string) => {
+  await axios.post(`http://localhost:3000/card/generate`, { title })
 }
 </script>
 
