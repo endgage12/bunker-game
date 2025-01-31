@@ -23,6 +23,9 @@ services:
       - '3000:3000'
     depends_on:
       - postgres
+    volumes:
+      - ./backend:/app/src
+      - /app/node_modules
 
   frontend:
     build:
