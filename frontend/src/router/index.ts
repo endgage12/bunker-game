@@ -5,8 +5,9 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/',
-      name: 'home',
+      path: '/settings/:settingName',
+      name: 'settings-setting-edit',
+      props: true,
       component: HomeView,
     },
     {

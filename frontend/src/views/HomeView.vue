@@ -1,12 +1,14 @@
 <template>
   <div class="flex flex-col gap-2 w-full">
-    <el-button @click="openAddModal">Create profession</el-button>
-    <el-table :data="professions" style="width: 100%">
-      <el-table-column prop="text" label="Profession" />
+    <el-button class="inline-flex" type="primary" @click="openAddModal">
+      Create {{ settingName }}
+    </el-button>
+    <el-table :data="settingData" style="width: 100%">
+      <el-table-column prop="text" :label="settingName" />
       <el-table-column align="right">
         <template #default="scope">
           <el-button size="small" @click="openEditModal(scope.row)"> Edit </el-button>
-          <el-button size="small" type="danger" @click="professionRemove(scope.row.id)">
+          <el-button size="small" type="danger" @click="rowRemove(scope.row.id)">
             Delete
           </el-button>
         </template>
@@ -14,10 +16,10 @@
     </el-table>
 
     <el-pagination
-      v-model:current-page="professionPaginationCurrentPage"
+      v-model:current-page="paginationCurrentPage"
       background
       layout="prev, pager, next"
-      :total="professions.length"
+      :total="settingData.length"
     />
   </div>
 
@@ -27,7 +29,7 @@
     <template #footer>
       <div class="dialog-footer">
         <el-button @click="addModalVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="professionCreate" @keyup.enter="professionCreate">
+        <el-button type="primary" @click="settingCreate" @keyup.enter="settingCreate">
           Confirm
         </el-button>
       </div>
@@ -40,7 +42,7 @@
     <template #footer>
       <div class="dialog-footer">
         <el-button @click="editModalVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="professionUpdate" @keyup.enter="professionUpdate">
+        <el-button type="primary" @click="settingUpdate" @keyup.enter="settingUpdate">
           Confirm
         </el-button>
       </div>
@@ -50,8 +52,17 @@
 
 <script setup lang="ts">
 import axios from 'axios'
-import { onBeforeMount, type Ref, ref } from 'vue'
+import { onBeforeMount, type Ref, ref, toRefs } from 'vue'
 import { debounce } from 'lodash'
+import { useRouter, useRoute } from 'vue-router'
+
+const props = defineProps({
+  settingName: { type: String, required: true },
+})
+const { settingName } = toRefs(props)
+
+const router = useRouter()
+const route = useRoute()
 
 interface addModalData {
   text: string
@@ -61,8 +72,8 @@ interface editModalData {
   text: string
 }
 
-const professions = ref([])
-const professionPaginationCurrentPage = ref(1)
+const settingData = ref([])
+const paginationCurrentPage = ref(1)
 const addModalVisible = ref(false)
 const addModalData = ref({
   text: '',
@@ -82,32 +93,33 @@ const openEditModal = (data: editModalData) => {
   editModalData.value = data
 }
 
-const professionCreate = async () => {
-  await axios.post('http://localhost:3000/profession/create?test=true', {
+const settingCreate = async () => {
+  await axios.post(`http://localhost:3000/${settingName.value}/create?test=true`, {
     text: addModalData.value.text,
   })
 
   addModalVisible.value = false
-  professions.value = await professionGetAll()
+  settingData.value = await settingGetAll()
 }
 
-const professionUpdate = async (data: editModalData) => {
-  await axios.post('http://localhost:3000/profession/update', editModalData.value)
+const settingUpdate = async (data: editModalData) => {
+  await axios.post(`http://localhost:3000/${settingName.value}/update`, editModalData.value)
   editModalVisible.value = false
 }
 
-const professionRemove = async (id: number) => {
-  await axios.post('http://localhost:3000/profession/remove', { id })
+const rowRemove = async (id: number) => {
+  await axios.post(`http://localhost:3000/${settingName.value}/remove`, { id })
 
-  professions.value = await professionGetAll()
+  settingData.value = await settingGetAll()
 }
 
-const professionGetAll = async () => {
-  const res = await axios.get('http://localhost:3000/profession')
+const settingGetAll = async () => {
+  const res = await axios.get(`http://localhost:3000/${settingName.value}`)
   return res?.data
 }
 
 onBeforeMount(async () => {
-  professions.value = await professionGetAll()
+  settingData.value = await settingGetAll()
+  console.log(settingName.value)
 })
 </script>
