@@ -4,7 +4,7 @@
       Create {{ settingName }}
     </el-button>
     <el-table :data="settingData" style="width: 100%">
-      <el-table-column prop="text" :label="settingName" />
+      <el-table-column prop="value" :label="settingName" />
       <el-table-column align="right">
         <template #default="scope">
           <el-button size="small" @click="openEditModal(scope.row)"> Edit </el-button>
@@ -24,7 +24,7 @@
   </div>
 
   <el-dialog class="flex flex-col gap-2" v-model="addModalVisible" :modal="true">
-    <el-input v-model="addModalData.text" placeholder="Profession" />
+    <el-input v-model="addModalData.value" placeholder="Value" />
 
     <template #footer>
       <div class="dialog-footer">
@@ -37,7 +37,7 @@
   </el-dialog>
 
   <el-dialog class="flex flex-col gap-2" v-model="editModalVisible" :modal="true">
-    <el-input v-model="editModalData.text" placeholder="Profession" />
+    <el-input v-model="editModalData.value" placeholder="Value" />
 
     <template #footer>
       <div class="dialog-footer">
@@ -65,27 +65,31 @@ const router = useRouter()
 const route = useRoute()
 
 interface addModalData {
-  text: string
+  title: string
+  value: string
 }
 
 interface editModalData {
-  text: string
+  title: string
+  value: string
 }
 
 const settingData = ref([])
 const paginationCurrentPage = ref(1)
 const addModalVisible = ref(false)
 const addModalData = ref({
-  text: '',
+  title: settingName.value,
+  value: '',
 })
 const editModalVisible = ref(false)
 const editModalData = ref({
-  text: '',
+  title: settingName.value,
+  value: '',
 })
 
 const openAddModal = () => {
   addModalVisible.value = true
-  addModalData.value = { text: '' }
+  addModalData.value = { title: settingName.value, value: '' }
 }
 
 const openEditModal = (data: editModalData) => {
@@ -94,27 +98,28 @@ const openEditModal = (data: editModalData) => {
 }
 
 const settingCreate = async () => {
-  await axios.post(`http://localhost:3000/${settingName.value}/create?test=true`, {
-    text: addModalData.value.text,
-  })
+  await axios.post(
+    `http://localhost:3000/setting/${settingName.value}/create?test=true`,
+    addModalData.value,
+  )
 
   addModalVisible.value = false
   settingData.value = await settingGetAll()
 }
 
 const settingUpdate = async (data: editModalData) => {
-  await axios.post(`http://localhost:3000/${settingName.value}/update`, editModalData.value)
+  await axios.post(`http://localhost:3000/setting/${settingName.value}/update`, editModalData.value)
   editModalVisible.value = false
 }
 
 const rowRemove = async (id: number) => {
-  await axios.post(`http://localhost:3000/${settingName.value}/remove`, { id })
+  await axios.post(`http://localhost:3000/setting/${settingName.value}/remove`, { id })
 
   settingData.value = await settingGetAll()
 }
 
 const settingGetAll = async () => {
-  const res = await axios.get(`http://localhost:3000/${settingName.value}`)
+  const res = await axios.get(`http://localhost:3000/setting/${settingName.value}`)
   return res?.data
 }
 
