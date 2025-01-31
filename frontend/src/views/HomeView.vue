@@ -2,7 +2,7 @@
   <main>
     <TheWelcome />
 
-    <el-button @click="professionCreate">Default</el-button>
+    <el-button @click="professionCreate">Create profession</el-button>
   </main>
 </template>
 
@@ -12,7 +12,7 @@ import axios from 'axios'
 
 const professionCreate = async () => {
   const res = await axios.post('http://localhost:3000/profession/create?test=true', {
-    data: 'test',
+    text: 'test1',
   })
   console.log(res?.data)
 }
