@@ -1,12 +1,13 @@
 // src/services/socket.service.js
 import { io, Socket } from 'socket.io-client'
+import axios from 'axios'
 
 class SocketService {
   private socket: Socket
-  private roomId: null
+  private roomList: Array<number> = []
   constructor() {
     this.socket = null
-    this.roomId = null
+    this.roomList = null
   }
 
   init() {
@@ -25,9 +26,10 @@ class SocketService {
   // Создание комнаты
   createRoom(playerName) {
     return new Promise((resolve, reject) => {
-      this.socket.emit('createRoom', playerName, (response) => {
+      this.socket.emit('createRoom', playerName, async (response) => {
         if (response.roomId) {
-          this.roomId = response.roomId
+          this.roomList = this.roomList ? [...this.roomList, response.roomId] : [response.roomId]
+          await axios.post('http://localhost:3000/room/create', { roomId: response.roomId })
           resolve(response)
         } else {
           reject(new Error('Failed to create room'))
@@ -41,7 +43,7 @@ class SocketService {
     return new Promise((resolve, reject) => {
       this.socket.emit('joinRoom', { roomId, playerName }, (response) => {
         if (response.players) {
-          this.roomId = roomId
+          this.roomList = [...this.roomList, roomId]
           resolve(response)
         } else {
           reject(new Error(response.error || 'Failed to join room'))
