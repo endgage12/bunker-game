@@ -10,13 +10,18 @@
       {{ menuItem }}
     </el-button>
 
-    <el-button class="!mt-8" type="primary" @click="cardGenerate('profession')">
-      Сгенерировать карточку
+    <el-button class="!mt-8 !m-0" type="primary" @click="cardGenerate('profession')">
+      Сгенерировать карточки
     </el-button>
+
+    <div class="flex items-center justify-between gap-4">
+      <Card v-for="(cardItem, cI) in cardData" :key="cI" :card-data="cardItem" />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import Card from '../components/Card.vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
@@ -33,13 +38,14 @@ const menu = ref([
   'inventory',
   'super-possibility',
 ])
+const cardData = ref({})
 
 const goTo = (menuItem: string) => {
   router.push({ name: 'settings-setting-edit', params: { settingName: menuItem } })
 }
 
 const cardGenerate = async (title: string) => {
-  await axios.post(`http://localhost:3000/card/generate`, { title })
+  cardData.value = (await axios.post(`http://localhost:3000/card/generate`, { amount: 6 }))?.data
 }
 </script>
 
