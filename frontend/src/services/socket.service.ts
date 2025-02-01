@@ -7,7 +7,7 @@ class SocketService {
   private roomList: Array<number> = []
   constructor() {
     this.socket = null
-    this.roomList = null
+    this.roomList = []
   }
 
   init() {
