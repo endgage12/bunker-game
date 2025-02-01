@@ -10,7 +10,9 @@
       {{ menuItem }}
     </el-button>
 
-    <el-button class="!mt-8 !m-0" type="primary" @click="cardGenerate('profession')">
+    <el-button class="!mt-8 !m-0" type="primary" @click="createRoom">Создать комнату</el-button>
+
+    <el-button class="!m-0" type="primary" @click="cardGenerate('profession')">
       Сгенерировать карточки
     </el-button>
 
@@ -47,7 +49,11 @@ const goTo = (menuItem: string) => {
   router.push({ name: 'settings-setting-edit', params: { settingName: menuItem } })
 }
 
-const cardGenerate = async (title: string) => {
+const createRoom = async () => {
+  await axios.post('http://localhost:3000/room/create', {})
+}
+
+const cardGenerate = async () => {
   cardData.value = (
     await axios.post(`http://localhost:3000/card/generate`, { amount: cardAmount.value })
   )?.data
