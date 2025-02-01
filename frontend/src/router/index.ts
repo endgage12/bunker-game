@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import SettingPage from '../views/SettingPage.vue'
 import MainPage from '@/views/MainPage.vue'
+import Room from '@/views/Room.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -9,6 +10,12 @@ const router = createRouter({
       path: '/',
       name: 'main-page',
       component: MainPage,
+    },
+    {
+      path: '/room/:roomId',
+      name: 'room-by-id',
+      props: true,
+      component: Room,
     },
     {
       path: '/settings/:settingName',
