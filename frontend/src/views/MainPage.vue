@@ -12,7 +12,7 @@
 
     <el-button class="!mt-8 !m-0" type="primary" @click="createRoom">Создать комнату</el-button>
 
-    <el-button class="!m-0" type="primary" @click="cardGenerate('profession')">
+    <el-button class="!m-0" type="primary" @click="cardGenerate">
       Сгенерировать карточки
     </el-button>
 
