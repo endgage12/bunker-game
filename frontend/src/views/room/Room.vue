@@ -3,9 +3,14 @@
     <div>{{ roomId }}</div>
     <div v-if="players.length">
       <h3>Игроки в комнате:</h3>
-      <ul>
-        <li v-for="player in players" :key="player.id">{{ player.name }}</li>
-      </ul>
+      <div class="flex flex-col gap-2">
+        <div class="flex items-center gap-2" v-for="player in players" :key="player.id">
+          <span>{{ player.name }}</span>
+          <el-button type="primary" @click="toggleReady(player)">
+            {{ player.ready ? 'Готов' : 'Не готов' }}
+          </el-button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -14,11 +19,21 @@
 import { ref, onBeforeMount, onUnmounted, onMounted } from 'vue'
 import socketService from '@/services/socket.service.ts'
 
+interface Player {
+  id: string
+  name: string
+  ready: boolean
+}
+
+interface Room {
+  players: Player[]
+}
+
 const props = defineProps({
   roomId: { type: String, required: true },
 })
 
-const players = ref<any[]>([])
+const players = ref<Player[]>([])
 
 const joinRoom = async () => {
   try {
@@ -27,14 +42,24 @@ const joinRoom = async () => {
       Math.random().toString(36).substr(2, 6).toUpperCase(),
     )
   } catch (error) {
-    alert(error.message)
+    if (error instanceof Error) {
+      alert(error.message)
+    } else {
+      alert('Произошла неизвестная ошибка')
+    }
   }
 }
 
 const onPlayerJoined = () => {
-  socketService.onPlayerJoined((room: object) => {
+  socketService.onPlayerJoined((room: Room): Room => {
     players.value = room.players
+    return room
   })
+}
+
+const toggleReady = (player: Player) => {
+  const updatedPlayer = { ...player, ready: !player.ready }
+  socketService.changePlayerReady(props.roomId, updatedPlayer)
 }
 
 onBeforeMount(async () => {

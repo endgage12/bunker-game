@@ -1,8 +1,17 @@
 <template>
   <div class="flex flex-col gap-2 w-full">
-    <el-button class="inline-flex" type="primary" @click="openAddModal">
-      Create {{ settingName }}
-    </el-button>
+    <el-page-header @back="goToMain">
+      <template #content>
+        <span class="font-600"> Параметры игры </span>
+      </template>
+
+      <template #extra>
+        <el-button class="inline-flex" type="primary" :icon="Plus" @click="openAddModal">
+          Create {{ settingName }}
+        </el-button>
+      </template>
+    </el-page-header>
+
     <el-table :data="settingData" style="width: 100%">
       <el-table-column prop="value" :label="settingName" />
       <el-table-column align="right">
@@ -55,6 +64,7 @@ import axios from 'axios'
 import { onBeforeMount, type Ref, ref, toRefs } from 'vue'
 import { debounce } from 'lodash'
 import { useRouter, useRoute } from 'vue-router'
+import { Plus } from '@element-plus/icons-vue'
 
 const props = defineProps({
   settingName: { type: String, required: true },
@@ -86,6 +96,10 @@ const editModalData = ref({
   title: settingName.value,
   value: '',
 })
+
+const goToMain = () => {
+  router.push({ name: 'main-page' })
+}
 
 const openAddModal = () => {
   addModalVisible.value = true

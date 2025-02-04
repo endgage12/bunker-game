@@ -1,6 +1,14 @@
 <template>
   <div class="flex flex-col gap-2">
-    <el-button class="!mt-8 !m-0" type="primary" @click="createRoom"> Создать комнату </el-button>
+    <el-page-header @back="goToMain">
+      <template #content>
+        <span class="font-600"> Список комнат </span>
+      </template>
+
+      <template #extra>
+        <el-button :icon="Plus" type="primary" @click="createRoom"> Создать комнату </el-button>
+      </template>
+    </el-page-header>
 
     <span>Все комнаты</span>
     <div class="flex flex-col-reverse gap-2">
@@ -13,53 +21,91 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, onMounted, ref, toRefs } from 'vue'
+import { onBeforeMount, onMounted, ref } from 'vue'
 import axios from 'axios'
 import socketService from '@/services/socket.service.ts'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import { Plus } from '@element-plus/icons-vue'
 
 const router = useRouter()
+const route = useRoute()
 
-const roomData = ref({
-  players: 0,
+interface RoomItem {
+  roomId: string
+  players?: Player[]
+}
+
+interface Player {
+  id: string
+  name: string
+  ready: boolean
+}
+
+interface RoomData {
+  players: Player[]
+  isHost: boolean
+}
+
+const roomData = ref<RoomData>({
+  players: [],
   isHost: false,
 })
-const roomList = ref([])
+
+const roomList = ref<RoomItem[]>([])
+
+const goToMain = () => {
+  router.push({ name: 'main-page' })
+}
 
 const createRoom = async () => {
   try {
     await socketService.createRoom('playerName')
     roomData.value.isHost = true
     await getAllRooms()
-  } catch (error) {
-    alert(error.message)
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      alert(error.message)
+    } else {
+      alert('Неизвестная ошибка при создании комнаты')
+    }
   }
 }
 
-const joinRoom = async (roomId: number) => {
+const joinRoom = async (roomId: string) => {
   try {
     await router.push({ name: 'room-by-id', params: { roomId } })
-  } catch (error) {
-    alert(error.message)
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      alert(error.message)
+    } else {
+      alert('Ошибка при переходе в комнату')
+    }
   }
 }
 
 const handleGameState = () => {
-  roomData.value.players += 1
+  // roomData.value.players = state.players
 }
 
 const getAllRooms = async () => {
-  roomList.value = (await axios.get('http://localhost:3000/room/getList'))?.data
+  try {
+    const response = await axios.get<RoomItem[]>('http://localhost:3000/room/getList')
+    roomList.value = response.data
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      alert(error.message)
+    } else {
+      alert('Ошибка при загрузке списка комнат')
+    }
+  }
 }
 
 onBeforeMount(async () => {
   await getAllRooms()
 })
 
-onMounted(async () => {
+onMounted(() => {
   socketService.init()
-  socketService.onGameStateUpdate(handleGameState)
+  // socketService.onGameStateUpdate(handleGameState)
 })
 </script>
-
-<style scoped></style>

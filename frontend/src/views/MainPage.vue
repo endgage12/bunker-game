@@ -10,7 +10,11 @@
       {{ menuItem }}
     </el-button>
 
-    <el-button class="!mt-8 !m-0" type="primary" @click="createRoom">Создать комнату</el-button>
+    <el-button class="!mt-8 !m-0" type="primary" @click="goToRoomList">
+      Перейти к списку комнат
+    </el-button>
+
+    <el-button class="!m-0" type="primary" @click="createRoom">Создать комнату</el-button>
 
     <el-button class="!m-0" type="primary" @click="cardGenerate">
       Сгенерировать карточки
@@ -47,6 +51,10 @@ const cardAmount = ref(0)
 
 const goTo = (menuItem: string) => {
   router.push({ name: 'settings-setting-edit', params: { settingName: menuItem } })
+}
+
+const goToRoomList = () => {
+  router.push({ name: 'room-list' })
 }
 
 const createRoom = async () => {
