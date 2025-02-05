@@ -14,14 +14,6 @@
       Перейти к списку комнат
     </el-button>
 
-    <el-button class="!m-0" type="primary" @click="createRoom">Создать комнату</el-button>
-
-    <el-button class="!m-0" type="primary" @click="cardGenerate">
-      Сгенерировать карточки
-    </el-button>
-
-    <el-input class="!w-64" v-model="cardAmount" />
-
     <div class="flex flex-wrap items-center gap-4">
       <Card v-for="(cardItem, cI) in cardData" :key="cI" :card-data="cardItem" />
     </div>
@@ -47,7 +39,6 @@ const menu = ref([
   'super-possibility',
 ])
 const cardData = ref({})
-const cardAmount = ref(0)
 
 const goTo = (menuItem: string) => {
   router.push({ name: 'settings-setting-edit', params: { settingName: menuItem } })
@@ -55,16 +46,6 @@ const goTo = (menuItem: string) => {
 
 const goToRoomList = () => {
   router.push({ name: 'room-list' })
-}
-
-const createRoom = async () => {
-  await axios.post('http://localhost:3000/room/create', {})
-}
-
-const cardGenerate = async () => {
-  cardData.value = (
-    await axios.post(`http://localhost:3000/card/generate`, { amount: cardAmount.value })
-  )?.data
 }
 </script>
 

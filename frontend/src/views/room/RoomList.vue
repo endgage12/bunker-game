@@ -47,7 +47,6 @@ interface Player {
 
 interface RoomData {
   players: Player[]
-  isHost: boolean
 }
 
 const roomData = ref<RoomData>({
@@ -88,25 +87,16 @@ const joinRoom = async (roomId: string) => {
   }
 }
 
-const getAllRooms = async () => {
-  try {
-    const response = await axios.get('http://localhost:3000/room/getList')
-    roomList.value = response.data
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      alert(error.message)
-    } else {
-      alert('Ошибка при загрузке списка комнат')
-    }
-  }
+const onGetRooms = () => {
+  socketService.onGetRooms((room: RoomItem[]): void => {
+    roomList.value = room
+  })
 }
-
-onBeforeMount(async () => {
-  await getAllRooms()
-})
 
 onMounted(() => {
   socketService.init()
+  socketService.getRooms()
+  onGetRooms()
   // socketService.onGameStateUpdate(handleGameState)
 })
 </script>

@@ -1,6 +1,7 @@
 import { io, Socket } from 'socket.io-client'
 import axios from 'axios'
 import { useRoomStore } from '@/stores/roomStore.ts'
+import { useRoute } from 'vue-router'
 
 interface Card {
   title: string
@@ -19,6 +20,11 @@ interface Room {
   players: Player[]
 }
 
+interface RoomList {
+  roomId: string
+  players: Player[]
+}
+
 class SocketService {
   private socket: Socket
   private roomList: Array<number> = []
@@ -32,8 +38,9 @@ class SocketService {
 
   init() {
     this.roomStore = useRoomStore()
+    const route = useRoute()
     this.socket = io('http://localhost:3000', {
-      auth: { roomId: 'HYI', username: this.roomStore.username },
+      auth: { roomId: route.params?.roomId, username: this.roomStore.username },
     })
 
     // Обработчики ошибок
@@ -118,6 +125,10 @@ class SocketService {
     this.socket.on('onCardUpdated', callback)
   }
 
+  onGetRooms(callback: (room: RoomList[]) => void) {
+    this.socket.on('onGetRooms', callback)
+  }
+
   // Отправка действий
   startGame() {
     this.socket.emit('startGame')
@@ -125,6 +136,10 @@ class SocketService {
 
   updateCard(newData: Card[]) {
     this.socket.emit('updateCard', { newData })
+  }
+
+  getRooms() {
+    this.socket.emit('getRooms')
   }
 
   revealCard(cardType: string) {
