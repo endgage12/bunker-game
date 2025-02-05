@@ -22,7 +22,9 @@ class SocketService {
   }
 
   init() {
-    this.socket = io('http://localhost:3000')
+    this.socket = io('http://localhost:3000', {
+      auth: { roomId: 'HYI' },
+    })
 
     // Обработчики ошибок
     this.socket.on('connect_error', (err) => {
@@ -78,12 +80,10 @@ class SocketService {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-expect-error
       this.socket.emit('changePlayerReady', { roomId, player }, (response) => {
-        if (response.players) {
-          // this.roomList = [...this.roomList, roomId]
-          resolve(response)
-        } else {
-          reject(new Error(response.error))
-        }
+        console.log(response, !response || Array.isArray(response))
+        if (!response || !Array.isArray(response)) reject(new Error(response.error))
+
+        resolve(response)
       })
     })
   }
@@ -97,15 +97,21 @@ class SocketService {
     this.socket.on('playerJoined', callback)
   }
 
+  onPlayerChangeStatus(callback: (next: Player) => void) {
+    this.socket.on('playerChangeStatus', callback)
+  }
+
   onCardRevealed(callback: never) {
     this.socket.on('cardRevealed', callback)
   }
 
+  onGameStarted(callback: never) {
+    this.socket.on('gameStarted', callback)
+  }
+
   // Отправка действий
   startGame() {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    this.socket.emit('startGame', this.roomId)
+    this.socket.emit('startGame')
   }
 
   revealCard(cardType: string) {

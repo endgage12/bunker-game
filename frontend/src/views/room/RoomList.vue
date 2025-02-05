@@ -83,13 +83,9 @@ const joinRoom = async (roomId: string) => {
   }
 }
 
-const handleGameState = () => {
-  // roomData.value.players = state.players
-}
-
 const getAllRooms = async () => {
   try {
-    const response = await axios.get<RoomItem[]>('http://localhost:3000/room/getList')
+    const response = await axios.get('http://localhost:3000/room/getList')
     roomList.value = response.data
   } catch (error: unknown) {
     if (error instanceof Error) {

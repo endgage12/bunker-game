@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
-import ru from 'element-plus/dist/locale/ru.mjs'
+import ru from 'element-plus/es/locale/lang/ru'
 import { ref } from 'vue'
 </script>
 
