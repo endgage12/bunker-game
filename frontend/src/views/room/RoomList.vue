@@ -17,6 +17,8 @@
         <el-button type="primary" @click="joinRoom(room.roomId)">Присоединиться</el-button>
       </div>
     </div>
+
+    <el-input v-model="roomStore.username" placeholder="Ваш никнейм" />
   </div>
 </template>
 
@@ -26,9 +28,11 @@ import axios from 'axios'
 import socketService from '@/services/socket.service.ts'
 import { useRoute, useRouter } from 'vue-router'
 import { Plus } from '@element-plus/icons-vue'
+import { useRoomStore } from '@/stores/roomStore.ts'
 
 const router = useRouter()
 const route = useRoute()
+const roomStore = useRoomStore()
 
 interface RoomItem {
   roomId: string

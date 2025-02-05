@@ -111,8 +111,8 @@ class SocketService {
     this.socket.on('gameStarted', callback)
   }
 
-  onSettingRevealed(callback: (room: Room) => void) {
-    this.socket.on('onSettingRevealed', callback)
+  onCardUpdated(callback: (room: Room) => void) {
+    this.socket.on('onCardUpdated', callback)
   }
 
   // Отправка действий
@@ -120,8 +120,8 @@ class SocketService {
     this.socket.emit('startGame')
   }
 
-  revealSetting(title: string) {
-    this.socket.emit('revealSetting', { title })
+  updateCard(newData: Card[]) {
+    this.socket.emit('updateCard', { newData })
   }
 
   revealCard(cardType: string) {

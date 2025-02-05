@@ -15,7 +15,7 @@
             <span class="whitespace-nowrap">
               {{ card.title }}: {{ card.isRevealed ? card.value : 'Не открыто' }}
             </span>
-            <el-button @click="revealSetting(card.title)"> Открыть </el-button>
+            <el-button v-if="!card.isRevealed" @click="revealCard(card)"> Открыть </el-button>
           </div>
 
           <el-button type="primary" @click="toggleReady(player)">
@@ -89,8 +89,8 @@ const onGameStarted = () => {
   })
 }
 
-const onSettingRevealed = () => {
-  socketService.onSettingRevealed((room: Room): void => {
+const onCardUpdated = () => {
+  socketService.onCardUpdated((room: Room): void => {
     console.log(room?.players)
     players.value = room?.players
   })
@@ -100,8 +100,14 @@ const startGame = () => {
   socketService.startGame()
 }
 
-const revealSetting = (title: string) => {
-  socketService.revealSetting(title)
+const revealCard = (card: Card) => {
+  card.isRevealed = true
+  updateCard(card)
+}
+
+const updateCard = (card: Card) => {
+  console.log(card)
+  // socketService.updateCard(title)
 }
 
 const toggleReady = (player: Player) => {
@@ -113,7 +119,7 @@ onBeforeMount(async () => {
   socketService.init()
   onPlayerJoined()
   onGameStarted()
-  onSettingRevealed()
+  onCardUpdated()
 })
 
 onMounted(async () => {
