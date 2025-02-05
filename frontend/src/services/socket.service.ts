@@ -1,10 +1,17 @@
 import { io, Socket } from 'socket.io-client'
 import axios from 'axios'
 
+interface Card {
+  title: string
+  isRevealed: boolean
+  value: string
+}
+
 interface Player {
   id: string
   name: string
   ready: boolean
+  card: Card[]
 }
 
 interface Room {
@@ -93,25 +100,28 @@ class SocketService {
     this.socket.on('gameState', callback)
   }
 
-  onPlayerJoined(callback: (room: Room) => Room) {
+  onPlayerJoined(callback: (room: Room) => void) {
     this.socket.on('playerJoined', callback)
   }
 
-  onPlayerChangeStatus(callback: (next: Player) => void) {
+  onPlayerChangeStatus(callback: (room: Room) => void) {
     this.socket.on('playerChangeStatus', callback)
   }
-
-  onCardRevealed(callback: never) {
-    this.socket.on('cardRevealed', callback)
+  onGameStarted(callback: (room: Room) => void) {
+    this.socket.on('gameStarted', callback)
   }
 
-  onGameStarted(callback: never) {
-    this.socket.on('gameStarted', callback)
+  onSettingRevealed(callback: (room: Room) => void) {
+    this.socket.on('onSettingRevealed', callback)
   }
 
   // Отправка действий
   startGame() {
     this.socket.emit('startGame')
+  }
+
+  revealSetting(title: string) {
+    this.socket.emit('revealSetting', { title })
   }
 
   revealCard(cardType: string) {

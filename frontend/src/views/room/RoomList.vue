@@ -59,9 +59,10 @@ const goToMain = () => {
 
 const createRoom = async () => {
   try {
-    await socketService.createRoom('playerName')
-    roomData.value.isHost = true
-    await getAllRooms()
+    await router.push({
+      name: 'room-by-id',
+      params: { roomId: Math.random().toString(36).substr(2, 6).toUpperCase() },
+    })
   } catch (error: unknown) {
     if (error instanceof Error) {
       alert(error.message)
