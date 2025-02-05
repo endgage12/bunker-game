@@ -41,7 +41,7 @@ interface RoomItem {
 
 interface Player {
   id: string
-  name: string
+  username: string
   ready: boolean
 }
 

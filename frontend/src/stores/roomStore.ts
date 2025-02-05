@@ -10,7 +10,7 @@ interface Card {
 
 interface Player {
   id: string
-  name: string
+  username: string
   ready: boolean
   card: Card[]
 }

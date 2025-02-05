@@ -9,7 +9,7 @@
           v-for="player in players"
           :key="player.id"
         >
-          <span>{{ player.name }}</span>
+          <span>{{ player.username }}</span>
 
           <div class="flex items-center gap-2" v-for="(card, cI) in player.card" :key="cI">
             <span class="whitespace-nowrap">
@@ -40,7 +40,7 @@ interface Card {
 
 interface Player {
   id: string
-  name: string
+  username: string
   ready: boolean
   card: Card[]
 }
@@ -85,7 +85,7 @@ const onPlayerChangeStatus = () => {
 const onGameStarted = () => {
   socketService.onGameStarted((room: Room): void => {
     console.log(room)
-    players.value = room?.players
+    players.value = room.players
   })
 }
 

@@ -1,5 +1,6 @@
 import { io, Socket } from 'socket.io-client'
 import axios from 'axios'
+import { useRoomStore } from '@/stores/roomStore.ts'
 
 interface Card {
   title: string
@@ -9,7 +10,7 @@ interface Card {
 
 interface Player {
   id: string
-  name: string
+  username: string
   ready: boolean
   card: Card[]
 }
@@ -21,6 +22,7 @@ interface Room {
 class SocketService {
   private socket: Socket
   private roomList: Array<number> = []
+  private roomStore: ReturnType<typeof useRoomStore> | null = null
   constructor() {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error
@@ -29,8 +31,9 @@ class SocketService {
   }
 
   init() {
+    this.roomStore = useRoomStore()
     this.socket = io('http://localhost:3000', {
-      auth: { roomId: 'HYI' },
+      auth: { roomId: 'HYI', username: this.roomStore.username },
     })
 
     // Обработчики ошибок
