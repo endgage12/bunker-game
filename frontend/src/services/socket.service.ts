@@ -75,21 +75,8 @@ class SocketService {
   }
 
   // Присоединение к комнате
-  joinRoom(roomId: string, playerName: string) {
-    return new Promise((resolve, reject) => {
-      this.socket.emit('joinRoom', { roomId, playerName }, (response: object) => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
-        if (response.players) {
-          // this.roomList = [...this.roomList, roomId]
-          resolve(response)
-        } else {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-expect-error
-          reject(new Error(response.error || 'Failed to join room'))
-        }
-      })
-    })
+  joinRoom(roomId: string, username: string) {
+    this.socket.emit('joinRoom', { roomId, username })
   }
 
   changePlayerReady(roomId: string, player: object) {

@@ -31,6 +31,7 @@
 <script setup lang="ts">
 import { ref, onBeforeMount, onUnmounted, onMounted } from 'vue'
 import socketService from '@/services/socket.service.ts'
+import { useRoomStore } from '@/stores/roomStore.ts'
 
 interface Card {
   title: string
@@ -53,14 +54,13 @@ const props = defineProps({
   roomId: { type: String, required: true },
 })
 
+const roomStore = useRoomStore()
+
 const players = ref<Player[]>([])
 
-const joinRoom = async () => {
+const joinRoom = () => {
   try {
-    await socketService.joinRoom(
-      props.roomId,
-      Math.random().toString(36).substr(2, 6).toUpperCase(),
-    )
+    socketService.joinRoom(props.roomId, roomStore.username)
   } catch (error) {
     if (error instanceof Error) {
       alert(error.message)
@@ -84,14 +84,12 @@ const onPlayerChangeStatus = () => {
 
 const onGameStarted = () => {
   socketService.onGameStarted((room: Room): void => {
-    console.log(room)
     players.value = room.players
   })
 }
 
 const onCardUpdated = () => {
   socketService.onCardUpdated((room: Room): void => {
-    console.log(room?.players)
     players.value = room?.players
   })
 }
@@ -122,8 +120,8 @@ onBeforeMount(async () => {
   onCardUpdated()
 })
 
-onMounted(async () => {
-  await joinRoom()
+onMounted(() => {
+  joinRoom()
 })
 
 onUnmounted(() => {
