@@ -18,13 +18,13 @@
             <el-button v-if="!card.isRevealed" @click="revealCard(card)"> Открыть </el-button>
           </div>
 
-          <el-button type="primary" @click="toggleReady(player)">
+          <el-button v-if="!isStartedGame" type="primary" @click="toggleReady(player)">
             {{ player.ready ? 'Готов' : 'Не готов' }}
           </el-button>
         </div>
       </div>
     </div>
-    <el-button type="primary" @click="startGame"> Start Game </el-button>
+    <el-button v-if="!isStartedGame" type="primary" @click="startGame"> Start Game </el-button>
   </div>
 </template>
 
@@ -32,6 +32,7 @@
 import { ref, onBeforeMount, onUnmounted, onMounted } from 'vue'
 import socketService from '@/services/socket.service.ts'
 import { useRoomStore } from '@/stores/roomStore.ts'
+import { storeToRefs } from 'pinia'
 
 interface Card {
   title: string
@@ -55,6 +56,7 @@ const props = defineProps({
 })
 
 const roomStore = useRoomStore()
+const { isStartedGame } = storeToRefs(roomStore)
 
 const players = ref<Player[]>([])
 
@@ -85,6 +87,7 @@ const onPlayerChangeStatus = () => {
 const onGameStarted = () => {
   socketService.onGameStarted((room: Room): void => {
     players.value = room.players
+    isStartedGame.value = true
   })
 }
 

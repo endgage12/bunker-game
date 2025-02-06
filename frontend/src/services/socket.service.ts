@@ -40,7 +40,11 @@ class SocketService {
     this.roomStore = useRoomStore()
     const route = useRoute()
     this.socket = io('http://localhost:3000', {
-      auth: { roomId: route.params?.roomId, username: this.roomStore.username },
+      auth: {
+        roomId: route.params?.roomId,
+        username: this.roomStore.username,
+        uuid: this.roomStore.uuid,
+      },
     })
 
     // Обработчики ошибок

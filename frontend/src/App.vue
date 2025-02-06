@@ -7,7 +7,20 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
 import ru from 'element-plus/es/locale/lang/ru'
-import { ref } from 'vue'
+import { onBeforeMount, ref } from 'vue'
+import { useRoomStore } from '@/stores/roomStore.ts'
+import { storeToRefs } from 'pinia'
+
+const roomStore = useRoomStore()
+const { uuid } = storeToRefs(roomStore)
+
+const generateUUID = () => {
+  return crypto.randomUUID()
+}
+
+onBeforeMount(() => {
+  if (!uuid.value) uuid.value = generateUUID()
+})
 </script>
 
 <style scoped></style>

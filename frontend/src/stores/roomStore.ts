@@ -17,7 +17,9 @@ interface Player {
 
 export const useRoomStore = defineStore('roomStore', () => {
   const username = useStorage('my-username', '')
+  const uuid = useStorage<string>('my-uuid', '')
   const players = ref<Player[]>()
+  const isStartedGame = ref<boolean>(false)
 
   const currentPlayer = computed<Player>({
     get: () => currentPlayer.value,
@@ -26,5 +28,5 @@ export const useRoomStore = defineStore('roomStore', () => {
     },
   })
 
-  return { currentPlayer, username, players }
+  return { currentPlayer, username, players, isStartedGame, uuid }
 })

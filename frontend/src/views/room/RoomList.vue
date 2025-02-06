@@ -51,7 +51,6 @@ interface RoomData {
 
 const roomData = ref<RoomData>({
   players: [],
-  isHost: false,
 })
 
 const roomList = ref<RoomItem[]>([])
