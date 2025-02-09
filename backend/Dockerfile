@@ -23,4 +23,4 @@ ENV NODE_OPTIONS="--max_old_space_size=4096"
 EXPOSE 3000
 
 # Команда по умолчанию для запуска приложения
-CMD ["yarn", "start"]
+CMD ["yarn", "start:dev"]
