@@ -1,8 +1,6 @@
 <template>
   <div class="flex flex-col items-center justify-center gap-2 flex-wrap">
-    <div>{{ roomId }}</div>
     <div v-if="players.length">
-      <h3>Игроки в комнате:</h3>
       <div class="flex items-center gap-2">
         <div
           class="flex flex-col items-center gap-2 border rounded-lg p-4"
@@ -26,6 +24,7 @@
         </div>
       </div>
     </div>
+
     <el-button v-if="!isStartedGame" type="primary" @click="startGame"> Start Game </el-button>
   </div>
 
@@ -43,23 +42,9 @@ import socketService from '@/services/socket.service.ts'
 import { useRoomStore } from '@/stores/roomStore.ts'
 import { storeToRefs } from 'pinia'
 import router from '@/router'
-
-interface Card {
-  title: string
-  isRevealed: boolean
-  value: string
-}
-
-interface Player {
-  id: string
-  username: string
-  ready: boolean
-  card: Card[]
-}
-
-interface Room {
-  players: Player[]
-}
+import type { Card } from '@/types/cardType.ts'
+import type { Player } from '@/types/playerType.ts'
+import type { Room } from '@/types/roomType.ts'
 
 const props = defineProps({
   roomId: { type: String, required: true },
@@ -88,6 +73,7 @@ const joinRoom = () => {
 
 const onPlayerJoined = () => {
   socketService.onPlayerJoined((room: Room): void => {
+    isStartedGame.value = room.isStarted
     players.value = room.players
   })
 }

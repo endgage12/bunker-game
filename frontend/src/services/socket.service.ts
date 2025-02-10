@@ -2,23 +2,9 @@ import { io, Socket } from 'socket.io-client'
 import axios from 'axios'
 import { useRoomStore } from '@/stores/roomStore.ts'
 import { useRoute } from 'vue-router'
-
-interface Card {
-  title: string
-  isRevealed: boolean
-  value: string
-}
-
-interface Player {
-  id: string
-  username: string
-  ready: boolean
-  card: Card[]
-}
-
-interface Room {
-  players: Player[]
-}
+import type { Player } from '@/types/playerType.ts'
+import type { Room } from '@/types/roomType.ts'
+import type { Card } from '@/types/cardType.ts'
 
 interface RoomList {
   roomId: string
