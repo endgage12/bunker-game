@@ -36,10 +36,6 @@
           >
             Выгнать
           </el-button>
-
-          <el-button v-if="!isStartedGame" type="primary" @click="toggleReady(player)">
-            {{ player.ready ? 'Готов' : 'Не готов' }}
-          </el-button>
         </div>
       </div>
     </div>
@@ -62,7 +58,6 @@ import { useRoomStore } from '@/stores/roomStore.ts'
 import { storeToRefs } from 'pinia'
 import router from '@/router'
 import type { Card } from '@/types/cardType.ts'
-import type { Player } from '@/types/playerType.ts'
 import type { Room } from '@/types/roomType.ts'
 
 const props = defineProps({
@@ -73,26 +68,17 @@ const roomStore = useRoomStore()
 const { isStartedGame, username, uuid, currentPlayer, players, isFocused } = storeToRefs(roomStore)
 
 const isUsernameModalVisible = ref(false)
-const idPlayerInFocus = ref('')
 const gamePhase = ref('')
+const idPlayerInFocus = ref('')
 
-const usernamePlayerInFocus = computed(() => {
-  return players.value.find((p) => p.id === idPlayerInFocus.value)?.username
-})
+const usernamePlayerInFocus = computed(
+  () => players.value.find((p) => p.id === idPlayerInFocus.value)?.username,
+)
 
 const joinRoom = () => {
-  try {
-    isUsernameModalVisible.value = !username.value
-    if (isUsernameModalVisible.value) return
+  if (!username.value) return
 
-    socketService.joinRoom(props.roomId, username.value)
-  } catch (error) {
-    if (error instanceof Error) {
-      alert(error.message)
-    } else {
-      alert('Произошла неизвестная ошибка')
-    }
-  }
+  socketService.joinRoom(props.roomId, username.value)
 }
 
 const voteForKick = (id: string) => {
@@ -125,13 +111,7 @@ const revealCard = (card: Card) => {
 }
 
 const updateCard = (card: Card) => {
-  console.log(card)
   socketService.updateCard(uuid.value, card)
-}
-
-const toggleReady = (player: Player) => {
-  const updatedPlayer = { ...player, ready: !player.ready }
-  socketService.changePlayerReady(props.roomId, updatedPlayer)
 }
 
 const reloadPage = () => {
@@ -139,14 +119,12 @@ const reloadPage = () => {
 }
 
 onBeforeMount(async () => {
+  isUsernameModalVisible.value = !username.value
   if (!username.value) return
 
   socketService.init()
   onRoomDataUpdated()
   onGetMyCard()
-})
-
-onMounted(() => {
   joinRoom()
 })
 
