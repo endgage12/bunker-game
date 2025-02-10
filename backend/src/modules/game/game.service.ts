@@ -3,7 +3,8 @@ import { Socket } from 'socket.io';
 import { Player } from '../../schemes/Player';
 import { SettingsService } from '../settings/setting.service';
 
-interface Card {
+export interface Card {
+  id: number;
   title: string;
   isRevealed: boolean;
   value: string;
@@ -43,7 +44,7 @@ export class GameService {
     this.players.push({
       id: uuid,
       username,
-      card: {},
+      card: [],
       isHost: !!this.players.length,
       vote: 'kick player 1',
       ready: false,
@@ -68,41 +69,49 @@ export class GameService {
     for (const pl of this.players) {
       pl.card = await Promise.all([
         {
+          id: 0,
           title: 'Профессия',
           value: await settingsService.getRandom('profession'),
           isRevealed: false,
         },
         {
+          id: 1,
           title: 'Хобби',
           value: await settingsService.getRandom('hobby'),
           isRevealed: false,
         },
         {
+          id: 2,
           title: 'Пол',
           value: await settingsService.getRandom('gender'),
           isRevealed: false,
         },
         {
+          id: 3,
           title: 'Здоровье',
           value: await settingsService.getRandom('health'),
           isRevealed: false,
         },
         {
+          id: 4,
           title: 'Фобии',
           value: await settingsService.getRandom('fear'),
           isRevealed: false,
         },
         {
+          id: 5,
           title: 'Рюкзак',
           value: await settingsService.getRandom('bag'),
           isRevealed: false,
         },
         {
+          id: 6,
           title: 'Инвентарь',
           value: await settingsService.getRandom('inventory'),
           isRevealed: false,
         },
         {
+          id: 7,
           title: 'Спец. карта',
           value: await settingsService.getRandom('super-possibility'),
           isRevealed: false,
@@ -111,7 +120,24 @@ export class GameService {
     }
   }
 
-  updateCard(player: Socket, newData: Card[]) {
-    console.log(newData);
+  updateCard(
+    player: Socket,
+    { uuid, newData }: { uuid: string; newData: Card },
+  ) {
+    const playerIndex = this.players.findIndex((p) => p.id === uuid);
+    if (playerIndex === -1) {
+      console.log('Игрок не найден');
+      return;
+    }
+
+    const cardFounded = this.players[playerIndex].card.find(
+      (c) => c.id === newData.id,
+    );
+
+    if (!cardFounded) return;
+
+    cardFounded.value = newData.value;
+    cardFounded.isRevealed = newData.isRevealed;
+    console.log(uuid, this.players[playerIndex], newData);
   }
 }

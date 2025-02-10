@@ -7,19 +7,8 @@ import {
   SubscribeMessage,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { GameService } from './game.service';
+import { GameService, Card } from './game.service';
 import { SettingsService } from '../settings/setting.service';
-
-interface Card {
-  title: string;
-  isRevealed: boolean;
-  value: string;
-}
-
-interface Room {
-  isActive: false;
-  isEnded: false;
-}
 
 @WebSocketGateway({ cors: true })
 export class GameGateway
@@ -79,10 +68,13 @@ export class GameGateway
   }
 
   @SubscribeMessage('updateCard')
-  updateCard(client: Socket, { newData }: { newData: Card[] }) {
+  updateCard(
+    client: Socket,
+    { uuid, newData }: { uuid: string; newData: Card },
+  ) {
     const roomId = client?.handshake?.auth?.roomId;
 
-    this.rooms.get(roomId)!.updateCard(client, newData);
+    this.rooms.get(roomId)!.updateCard(client, { uuid, newData });
 
     this.server.to(roomId).emit('onCardUpdated', this.rooms.get(roomId));
   }

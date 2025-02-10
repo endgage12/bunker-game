@@ -26,13 +26,21 @@
     </div>
     <el-button v-if="!isStartedGame" type="primary" @click="startGame"> Start Game </el-button>
   </div>
+
+  <el-dialog v-model="isUsernameModalVisible" :modal="true" title="Введите никнейм">
+    <el-input v-model="username" placeholder="Ваш никнейм" />
+    <template v-slot:footer>
+      <el-button type="primary" @click="reloadPage"> Присоединиться </el-button>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup lang="ts">
-import { ref, onBeforeMount, onUnmounted, onMounted } from 'vue'
+import { ref, onBeforeMount, onUnmounted, onMounted, computed } from 'vue'
 import socketService from '@/services/socket.service.ts'
 import { useRoomStore } from '@/stores/roomStore.ts'
 import { storeToRefs } from 'pinia'
+import router from '@/router'
 
 interface Card {
   title: string
@@ -56,13 +64,17 @@ const props = defineProps({
 })
 
 const roomStore = useRoomStore()
-const { isStartedGame } = storeToRefs(roomStore)
+const { isStartedGame, username, uuid } = storeToRefs(roomStore)
 
 const players = ref<Player[]>([])
+const isUsernameModalVisible = ref(false)
 
 const joinRoom = () => {
   try {
-    socketService.joinRoom(props.roomId, roomStore.username)
+    isUsernameModalVisible.value = !username.value
+    if (isUsernameModalVisible.value) return
+
+    socketService.joinRoom(props.roomId, username.value)
   } catch (error) {
     if (error instanceof Error) {
       alert(error.message)
@@ -108,7 +120,7 @@ const revealCard = (card: Card) => {
 
 const updateCard = (card: Card) => {
   console.log(card)
-  // socketService.updateCard(title)
+  socketService.updateCard(uuid.value, card)
 }
 
 const toggleReady = (player: Player) => {
@@ -116,7 +128,13 @@ const toggleReady = (player: Player) => {
   socketService.changePlayerReady(props.roomId, updatedPlayer)
 }
 
+const reloadPage = () => {
+  router.go(0)
+}
+
 onBeforeMount(async () => {
+  if (!username.value) return
+
   socketService.init()
   onPlayerJoined()
   onGameStarted()

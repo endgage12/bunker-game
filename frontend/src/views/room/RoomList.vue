@@ -17,8 +17,6 @@
         <el-button type="primary" @click="joinRoom(room.roomId)">Присоединиться</el-button>
       </div>
     </div>
-
-    <el-input v-model="roomStore.username" placeholder="Ваш никнейм" />
   </div>
 </template>
 

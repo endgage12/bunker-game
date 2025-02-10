@@ -125,8 +125,8 @@ class SocketService {
     this.socket.emit('startGame')
   }
 
-  updateCard(newData: Card[]) {
-    this.socket.emit('updateCard', { newData })
+  updateCard(uuid: string, newData: Card) {
+    this.socket.emit('updateCard', { uuid, newData })
   }
 
   getRooms() {

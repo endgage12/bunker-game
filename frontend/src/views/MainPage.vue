@@ -10,7 +10,14 @@
       {{ menuItem }}
     </el-button>
 
-    <el-button class="!mt-8 !m-0" type="primary" @click="goToRoomList">
+    <el-input v-model="roomStore.username" placeholder="Ваш никнейм" />
+
+    <el-button
+      :disabled="!roomStore.username"
+      class="!mt-8 !m-0"
+      type="primary"
+      @click="goToRoomList"
+    >
       Перейти к списку комнат
     </el-button>
 
@@ -25,8 +32,10 @@ import Card from '../components/Card.vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
+import { useRoomStore } from '@/stores/roomStore.ts'
 
 const router = useRouter()
+const roomStore = useRoomStore()
 
 const menu = ref([
   'profession',
