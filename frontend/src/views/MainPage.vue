@@ -5,9 +5,9 @@
       v-for="(menuItem, mI) in menu"
       :key="mI"
       type="primary"
-      @click="goTo(menuItem)"
+      @click="goTo(menuItem.title)"
     >
-      {{ menuItem }}
+      {{ menuItem.title }}
     </el-button>
 
     <el-input v-model="roomStore.username" placeholder="Ваш никнейм" />
@@ -29,7 +29,7 @@
 
 <script setup lang="ts">
 import Card from '../components/Card.vue'
-import { ref } from 'vue'
+import { onBeforeMount, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import { useRoomStore } from '@/stores/roomStore.ts'
@@ -37,16 +37,7 @@ import { useRoomStore } from '@/stores/roomStore.ts'
 const router = useRouter()
 const roomStore = useRoomStore()
 
-const menu = ref([
-  'profession',
-  'hobby',
-  'gender',
-  'health',
-  'fear',
-  'bag',
-  'inventory',
-  'super-possibility',
-])
+const menu = ref([])
 const cardData = ref({})
 
 const goTo = (menuItem: string) => {
@@ -56,6 +47,10 @@ const goTo = (menuItem: string) => {
 const goToRoomList = () => {
   router.push({ name: 'room-list' })
 }
+
+onBeforeMount(async () => {
+  menu.value = (await axios.get('http://localhost:3000/setting')).data
+})
 </script>
 
 <style scoped></style>

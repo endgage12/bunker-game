@@ -18,13 +18,16 @@ interface Player {
 export const useRoomStore = defineStore('roomStore', () => {
   const username = useStorage('my-username', '')
   const uuid = useStorage<string>('my-uuid', '')
-  const players = ref<Player[]>()
+  const players = ref<Player[]>([])
   const isStartedGame = ref<boolean>(false)
 
   const currentPlayer = computed<Player>({
-    get: () => currentPlayer.value,
+    get: () => players.value?.find((p) => p.id === uuid.value) || ({} as Player),
     set: (newValue) => {
-      currentPlayer.value = newValue
+      console.log('set current player', newValue, currentPlayer.value)
+      // currentPlayer.value = newValue
+      const fU = players.value?.findIndex((p) => p.id === uuid.value)
+      players.value[fU] = newValue
     },
   })
 

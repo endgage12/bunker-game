@@ -6,8 +6,13 @@ import { Setting } from './entities/setting.entity';
 export class SettingsController {
   constructor(private readonly settingsService: SettingsService) {}
 
-  @Get(':title')
-  async findAll(@Param() params: Setting): Promise<Setting[]> {
+  @Get()
+  async findAll(): Promise<string[]> {
+    return await this.settingsService.findTitlesDistinct();
+  }
+
+  @Get('/:title')
+  async findByTitle(@Param() params: Setting): Promise<Setting[]> {
     return await this.settingsService.findByTitle(params.title);
   }
 

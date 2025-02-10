@@ -49,9 +49,8 @@ const props = defineProps({
 })
 
 const roomStore = useRoomStore()
-const { isStartedGame, username, uuid } = storeToRefs(roomStore)
+const { isStartedGame, username, uuid, currentPlayer, players } = storeToRefs(roomStore)
 
-const players = ref<Player[]>([])
 const isUsernameModalVisible = ref(false)
 
 const joinRoom = () => {
@@ -95,6 +94,12 @@ const onCardUpdated = () => {
   })
 }
 
+const onCardCreated = () => {
+  socketService.onCardCreated((cards: Card[]): void => {
+    currentPlayer.value = { ...currentPlayer.value, card: cards }
+  })
+}
+
 const startGame = () => {
   socketService.startGame()
 }
@@ -125,6 +130,7 @@ onBeforeMount(async () => {
   onPlayerJoined()
   onGameStarted()
   onCardUpdated()
+  onCardCreated()
 })
 
 onMounted(() => {

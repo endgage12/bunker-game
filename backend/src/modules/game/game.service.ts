@@ -1,7 +1,7 @@
-// import { Card } from '../../app.service';
 import { Socket } from 'socket.io';
 import { Player } from '../../schemes/Player';
 import { SettingsService } from '../settings/setting.service';
+import axios from 'axios';
 
 export interface Card {
   id: number;
@@ -13,6 +13,7 @@ export interface Card {
 export class GameService {
   private roomId: string;
   private players: Player[] = [];
+  private playersCards: Map<string, Card[]> = new Map();
   private isStarted: boolean = false;
 
   constructor(roomId: string) {
@@ -66,58 +67,38 @@ export class GameService {
   async cardGenerate(settingsService: SettingsService) {
     this.isStarted = true;
 
+    const settings =
+      <object[]>(await axios.get('http://localhost:3000/setting'))?.data || [];
     for (const pl of this.players) {
-      pl.card = await Promise.all([
-        {
-          id: 0,
-          title: 'Профессия',
-          value: await settingsService.getRandom('profession'),
-          isRevealed: false,
-        },
-        {
-          id: 1,
-          title: 'Хобби',
-          value: await settingsService.getRandom('hobby'),
-          isRevealed: false,
-        },
-        {
-          id: 2,
-          title: 'Пол',
-          value: await settingsService.getRandom('gender'),
-          isRevealed: false,
-        },
-        {
-          id: 3,
-          title: 'Здоровье',
-          value: await settingsService.getRandom('health'),
-          isRevealed: false,
-        },
-        {
-          id: 4,
-          title: 'Фобии',
-          value: await settingsService.getRandom('fear'),
-          isRevealed: false,
-        },
-        {
-          id: 5,
-          title: 'Рюкзак',
-          value: await settingsService.getRandom('bag'),
-          isRevealed: false,
-        },
-        {
-          id: 6,
-          title: 'Инвентарь',
-          value: await settingsService.getRandom('inventory'),
-          isRevealed: false,
-        },
-        {
-          id: 7,
-          title: 'Спец. карта',
-          value: await settingsService.getRandom('super-possibility'),
-          isRevealed: false,
-        },
-      ]);
+      this.playersCards.set(
+        pl.id,
+        await Promise.all(
+          settings.map(async (s: Card, id: number) => ({
+            id,
+            title: s.title,
+            value: await settingsService.getRandom(s.title),
+            isRevealed: false,
+          })),
+        ),
+      );
+
+      pl.card = settings.map((s: Card, id: number) => ({
+        id,
+        title: s.title,
+        value: 'Скрыто',
+        isRevealed: false,
+      }));
     }
+  }
+
+  getMyCard({ uuid }: { uuid: string }) {
+    const playerIndex = this.players.findIndex((p) => p.id === uuid);
+    if (playerIndex === -1) {
+      console.log('Игрок не найден');
+      return;
+    }
+
+    return this.playersCards.get(uuid);
   }
 
   updateCard(
@@ -138,19 +119,5 @@ export class GameService {
 
     cardFounded.value = newData.value;
     cardFounded.isRevealed = newData.isRevealed;
-    console.log(uuid, this.players[playerIndex], newData);
-  }
-
-  hideEnemiesCards(player: Socket, { uuid }: { uuid: string }) {
-    this.players = this.players.map((p) => ({
-      ...p,
-      card:
-        p.id === uuid
-          ? p.card
-          : p.card.map((c) => ({
-              ...c,
-              value: c.isRevealed ? c.value : 'Скрыто',
-            })),
-    }));
   }
 }

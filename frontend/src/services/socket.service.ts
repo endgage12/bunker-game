@@ -106,6 +106,10 @@ class SocketService {
     this.socket.on('onGetRooms', callback)
   }
 
+  onCardCreated(callback: (cards: Card[]) => void) {
+    this.socket.on('onCardCreated', callback)
+  }
+
   // Отправка действий
   startGame() {
     this.socket.emit('startGame')

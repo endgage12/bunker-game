@@ -64,6 +64,17 @@ export class GameGateway
 
     await this.rooms.get(roomId)!.cardGenerate(this.settingsService);
     this.server.to(roomId).emit('gameStarted', this.rooms.get(roomId));
+
+    const clients = await this.server.fetchSockets();
+    clients.forEach((c) => {
+      console.log(c.handshake.auth.uuid);
+      c.emit(
+        'onCardCreated',
+        this.rooms.get(roomId)!.getMyCard({
+          uuid: c.handshake.auth.uuid,
+        }),
+      );
+    });
   }
 
   @SubscribeMessage('updateCard')
@@ -74,8 +85,8 @@ export class GameGateway
     const roomId = client?.handshake?.auth?.roomId;
 
     this.rooms.get(roomId)!.updateCard(client, { uuid, newData });
-    // this.rooms.get(roomId)!.hideEnemiesCards(client, { uuid });
     this.server.to(roomId).emit('onCardUpdated', this.rooms.get(roomId));
+    client.emit('onCardCreated', this.rooms.get(roomId)!.getMyCard({ uuid }));
   }
 
   @SubscribeMessage('getRooms')

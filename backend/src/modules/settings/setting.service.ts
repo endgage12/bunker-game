@@ -14,6 +14,14 @@ export class SettingsService {
     return this.settingRepository.find();
   }
 
+  findTitlesDistinct(): Promise<string[]> {
+    const query = this.settingRepository
+      .createQueryBuilder('setting')
+      .select('title')
+      .distinct();
+    return query.getRawMany();
+  }
+
   findOne(id: number): Promise<Setting | null> {
     return this.settingRepository.findOneBy({ id });
   }
