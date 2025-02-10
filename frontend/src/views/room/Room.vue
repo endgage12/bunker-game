@@ -10,9 +10,7 @@
           <span>{{ player.username }}</span>
 
           <div class="flex items-center gap-2" v-for="(card, cI) in player.card" :key="cI">
-            <span class="whitespace-nowrap">
-              {{ card.title }}: {{ card.isRevealed ? card.value : 'Не открыто' }}
-            </span>
+            <span class="whitespace-nowrap"> {{ card.title }}: {{ card.value }} </span>
             <el-button v-if="!card.isRevealed && player.id === uuid" @click="revealCard(card)">
               Открыть
             </el-button>

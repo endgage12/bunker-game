@@ -140,4 +140,17 @@ export class GameService {
     cardFounded.isRevealed = newData.isRevealed;
     console.log(uuid, this.players[playerIndex], newData);
   }
+
+  hideEnemiesCards(player: Socket, { uuid }: { uuid: string }) {
+    this.players = this.players.map((p) => ({
+      ...p,
+      card:
+        p.id === uuid
+          ? p.card
+          : p.card.map((c) => ({
+              ...c,
+              value: c.isRevealed ? c.value : 'Скрыто',
+            })),
+    }));
+  }
 }

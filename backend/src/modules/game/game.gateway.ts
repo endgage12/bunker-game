@@ -25,9 +25,9 @@ export class GameGateway
   }
 
   handleConnection(client: Socket) {
-    const roomId = client?.handshake?.auth?.roomId;
-    const username = client?.handshake?.auth?.username;
-    const uuid = client?.handshake?.auth?.uuid;
+    const roomId = <string | undefined>client?.handshake?.auth?.roomId;
+    const username = <string | undefined>client?.handshake?.auth?.username;
+    const uuid = <string>client?.handshake?.auth?.uuid;
     if (!roomId || !username) {
       this.getRooms(client);
       client.disconnect();
@@ -63,7 +63,6 @@ export class GameGateway
     const roomId = client?.handshake?.auth?.roomId;
 
     await this.rooms.get(roomId)!.cardGenerate(this.settingsService);
-
     this.server.to(roomId).emit('gameStarted', this.rooms.get(roomId));
   }
 
@@ -75,7 +74,7 @@ export class GameGateway
     const roomId = client?.handshake?.auth?.roomId;
 
     this.rooms.get(roomId)!.updateCard(client, { uuid, newData });
-
+    // this.rooms.get(roomId)!.hideEnemiesCards(client, { uuid });
     this.server.to(roomId).emit('onCardUpdated', this.rooms.get(roomId));
   }
 
@@ -91,10 +90,14 @@ export class GameGateway
   }
 
   @SubscribeMessage('joinRoom')
-  joinRoom(
-    client: Socket,
-    { roomId, username }: { roomId: string; username: string },
-  ) {
+  joinRoom(client: Socket, { roomId, uuid }: { roomId: string; uuid: string }) {
+    const roomFounded = this.rooms.get(roomId);
+    if (!roomFounded) {
+      client.emit('error', 'Комната не найдена');
+      return;
+    }
+
+    // this.rooms.get(roomId)!.hideEnemiesCards(client, { uuid });
     this.server.to(roomId).emit('playerJoined', this.rooms.get(roomId));
   }
 
