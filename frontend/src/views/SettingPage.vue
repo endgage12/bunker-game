@@ -139,6 +139,5 @@ const settingGetAll = async () => {
 
 onBeforeMount(async () => {
   settingData.value = await settingGetAll()
-  console.log(settingName.value)
 })
 </script>

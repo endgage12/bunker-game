@@ -16,38 +16,39 @@ export class GameGateway
 {
   @WebSocketServer() server: Server;
   private rooms = new Map<string, GameService>();
-  // private roomsState = new Map<string, GameService>();
 
   constructor(private readonly settingsService: SettingsService) {}
 
-  afterInit(server: Server) {
+  afterInit() {
     console.log(`WebSocket Gateway initialized`);
   }
 
   handleConnection(client: Socket) {
-    const roomId = <string | undefined>client?.handshake?.auth?.roomId;
-    const username = <string | undefined>client?.handshake?.auth?.username;
-    const uuid = <string>client?.handshake?.auth?.uuid;
-    if (!roomId || !username) {
+    const roomId: string | undefined = client?.handshake?.auth?.roomId;
+    const username: string | undefined = client?.handshake?.auth?.username;
+    const uuid: string | undefined = client?.handshake?.auth?.uuid;
+    if (!roomId || !username || !uuid) {
       this.getRooms();
       client.disconnect();
       return;
     }
 
-    const isRoomId = this.rooms.has(client?.handshake?.auth?.roomId);
+    const isRoomId = this.rooms.has(roomId);
     if (!isRoomId) {
       this.rooms.set(roomId, new GameService(roomId));
       this.getRooms();
     }
 
     this.rooms.get(roomId)!.addPlayer(client, { username, uuid });
-
-    console.log(`Client connected: ${client.id}`);
   }
 
   handleDisconnect(client: Socket) {
-    const roomId = client?.handshake?.auth?.roomId;
-    const uuid = client?.handshake?.auth?.uuid;
+    const roomId: string | undefined = client?.handshake?.auth?.roomId;
+    const uuid: string | undefined = client?.handshake?.auth?.uuid;
+    if (!roomId || !uuid) {
+      client.disconnect();
+      return;
+    }
 
     const isRoomId = this.rooms.has(roomId);
     if (!isRoomId) client.disconnect();
@@ -61,7 +62,8 @@ export class GameGateway
 
   @SubscribeMessage('startGame')
   async startGame(client: Socket) {
-    const roomId = client?.handshake?.auth?.roomId;
+    const roomId: string | undefined = client?.handshake?.auth?.roomId;
+    if (!roomId) return;
 
     await this.rooms.get(roomId)!.cardGenerate(this.settingsService);
     this.rooms.get(roomId)!.setFocusToPlayer();
