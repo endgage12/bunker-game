@@ -6,11 +6,6 @@ import type { Player } from '@/types/playerType.ts'
 import type { Room } from '@/types/roomType.ts'
 import type { Card } from '@/types/cardType.ts'
 
-interface RoomList {
-  roomId: string
-  players: Player[]
-}
-
 class SocketService {
   private socket: Socket
   private roomList: Array<number> = []
@@ -69,6 +64,10 @@ class SocketService {
     this.socket.emit('joinRoom', { roomId, username })
   }
 
+  voteForKick(playerId: string) {
+    this.socket.emit('voteForKick', { playerId })
+  }
+
   changePlayerReady(roomId: string, player: object) {
     return new Promise((resolve, reject) => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -83,26 +82,11 @@ class SocketService {
   }
 
   // Слушатели событий
-  onGameStateUpdate(callback: never) {
-    this.socket.on('gameState', callback)
+  onRoomDataUpdated(callback: (room: Room) => void) {
+    this.socket.on('onRoomDataUpdated', callback)
   }
 
-  onPlayerJoined(callback: (room: Room) => void) {
-    this.socket.on('playerJoined', callback)
-  }
-
-  onPlayerChangeStatus(callback: (room: Room) => void) {
-    this.socket.on('playerChangeStatus', callback)
-  }
-  onGameStarted(callback: (room: Room) => void) {
-    this.socket.on('gameStarted', callback)
-  }
-
-  onCardUpdated(callback: (room: Room) => void) {
-    this.socket.on('onCardUpdated', callback)
-  }
-
-  onGetRooms(callback: (room: RoomList[]) => void) {
+  onGetRooms(callback: (room: Room[]) => void) {
     this.socket.on('onGetRooms', callback)
   }
 

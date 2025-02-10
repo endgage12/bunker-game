@@ -22,71 +22,36 @@
 
 <script setup lang="ts">
 import { onBeforeMount, onMounted, ref } from 'vue'
-import axios from 'axios'
 import socketService from '@/services/socket.service.ts'
 import { useRoute, useRouter } from 'vue-router'
 import { Plus } from '@element-plus/icons-vue'
 import { useRoomStore } from '@/stores/roomStore.ts'
+import type { Room } from '@/types/roomType.ts'
 
 const router = useRouter()
 const route = useRoute()
 const roomStore = useRoomStore()
 
-interface RoomItem {
-  roomId: string
-  players?: Player[]
-}
-
-interface Player {
-  id: string
-  username: string
-  ready: boolean
-}
-
-interface RoomData {
-  players: Player[]
-}
-
-const roomData = ref<RoomData>({
-  players: [],
-})
-
-const roomList = ref<RoomItem[]>([])
+const roomList = ref<Room[]>([])
 
 const goToMain = () => {
   router.push({ name: 'main-page' })
 }
 
-const createRoom = async () => {
-  try {
-    await router.push({
-      name: 'room-by-id',
-      params: { roomId: Math.random().toString(36).substr(2, 6).toUpperCase() },
-    })
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      alert(error.message)
-    } else {
-      alert('Неизвестная ошибка при создании комнаты')
-    }
-  }
+const createRoom = () => {
+  router.push({
+    name: 'room-by-id',
+    params: { roomId: Math.random().toString(36).substr(2, 6).toUpperCase() },
+  })
 }
 
-const joinRoom = async (roomId: string) => {
-  try {
-    await router.push({ name: 'room-by-id', params: { roomId } })
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      alert(error.message)
-    } else {
-      alert('Ошибка при переходе в комнату')
-    }
-  }
+const joinRoom = (roomId: string) => {
+  router.push({ name: 'room-by-id', params: { roomId } })
 }
 
 const onGetRooms = () => {
-  socketService.onGetRooms((room: RoomItem[]): void => {
-    roomList.value = room
+  socketService.onGetRooms((rooms: Room[]): void => {
+    roomList.value = rooms
   })
 }
 
@@ -94,6 +59,5 @@ onMounted(() => {
   socketService.init()
   socketService.getRooms()
   onGetRooms()
-  // socketService.onGameStateUpdate(handleGameState)
 })
 </script>

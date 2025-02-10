@@ -16,6 +16,7 @@ export class GameService {
   private playersCards: Map<string, Card[]> = new Map();
   private isStarted: boolean = false;
   private idPlayerInFocus: string = '';
+  private gamePhase: string = 'lobby';
 
   constructor(roomId: string) {
     this.roomId = roomId;
@@ -48,7 +49,9 @@ export class GameService {
       username,
       card: [],
       isHost: !!this.players.length,
+      isKicked: false,
       vote: 'kick player 1',
+      kickVotes: 0,
       ready: false,
     });
 
@@ -92,19 +95,67 @@ export class GameService {
     }
   }
 
+  setGamePhase(phase: string) {
+    this.gamePhase = phase;
+  }
+
   setFocusToPlayer() {
     if (!this.players.length) return;
+
+    // Если фокус не установлен, начинаем с первого НЕ выгнанного игрока
     if (!this.idPlayerInFocus) {
-      this.idPlayerInFocus = this.players[0].id;
+      const firstActivePlayer = this.players.find((p) => !p.isKicked);
+      if (firstActivePlayer) this.idPlayerInFocus = firstActivePlayer.id;
       return;
     }
 
-    const currentIndex = this.players.findIndex(
+    const activePlayers = this.players.filter((p) => !p.isKicked);
+    const currentIndex = activePlayers.findIndex(
       (p) => p.id === this.idPlayerInFocus,
     );
-    const nextIndex = (currentIndex + 1) % this.players.length;
+    const nextIndex = (currentIndex + 1) % activePlayers.length;
+    const isNextRound = nextIndex === 0;
 
-    this.idPlayerInFocus = this.players[nextIndex].id;
+    if (isNextRound && this.gamePhase === 'voting') {
+      // Собираем голоса только для активных игроков
+      const activePlayers = this.players.filter((p) => !p.isKicked);
+      let maxVotes = 0;
+      let candidates: { isKicked: boolean }[] = [];
+
+      activePlayers.forEach((player) => {
+        if (player.kickVotes > maxVotes) {
+          maxVotes = player.kickVotes;
+          candidates = [player];
+        } else if (player.kickVotes === maxVotes) {
+          candidates.push(player);
+        }
+      });
+
+      if (candidates.length === 1 && maxVotes > 0) {
+        candidates[0].isKicked = true;
+        this.resetVotes();
+      } else {
+        // Ничья
+        this.resetVotes();
+      }
+    }
+
+    if (isNextRound)
+      this.gamePhase = this.gamePhase === 'voting' ? 'revealing' : 'voting';
+
+    const nextPlayer = activePlayers[nextIndex];
+    this.idPlayerInFocus = nextPlayer?.id;
+  }
+
+  resetVotes() {
+    this.players.forEach((p) => (p.kickVotes = 0));
+  }
+
+  voteForKick(player: Socket, { playerId }: { playerId: string }) {
+    const foundPlayer = this.players.find((p) => p.id === playerId);
+    if (!foundPlayer) return;
+
+    foundPlayer.kickVotes = foundPlayer.kickVotes + 1;
   }
 
   getMyCard({ uuid }: { uuid: string }) {

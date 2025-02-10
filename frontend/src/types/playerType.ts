@@ -4,5 +4,6 @@ export interface Player {
   id: string
   username: string
   ready: boolean
+  kickVotes: number
   card: Card[]
 }

@@ -5,6 +5,8 @@
       <div v-else>Ход за {{ usernamePlayerInFocus }}</div>
     </div>
 
+    {{ gamePhase }}
+
     <div v-if="players.length">
       <div class="flex items-center gap-2">
         <div
@@ -13,16 +15,27 @@
           :key="player.id"
         >
           <span>{{ player.username }}</span>
+          <span>{{ player.kickVotes }}</span>
+          <span>Выгнан: {{ player.isKicked }}</span>
 
           <div class="flex items-center gap-2" v-for="(card, cI) in player.card" :key="cI">
             <span class="whitespace-nowrap"> {{ card.title }}: {{ card.value }} </span>
             <el-button
-              v-if="!card.isRevealed && player.id === uuid && isFocused"
+              v-if="
+                !card.isRevealed && player.id === uuid && isFocused && gamePhase === 'revealing'
+              "
               @click="revealCard(card)"
             >
               Открыть
             </el-button>
           </div>
+
+          <el-button
+            v-if="player.id !== uuid && gamePhase === 'voting' && isFocused"
+            @click="voteForKick(player.id)"
+          >
+            Выгнать
+          </el-button>
 
           <el-button v-if="!isStartedGame" type="primary" @click="toggleReady(player)">
             {{ player.ready ? 'Готов' : 'Не готов' }}
@@ -61,6 +74,7 @@ const { isStartedGame, username, uuid, currentPlayer, players, isFocused } = sto
 
 const isUsernameModalVisible = ref(false)
 const idPlayerInFocus = ref('')
+const gamePhase = ref('')
 
 const usernamePlayerInFocus = computed(() => {
   return players.value.find((p) => p.id === idPlayerInFocus.value)?.username
@@ -81,35 +95,17 @@ const joinRoom = () => {
   }
 }
 
-const onPlayerJoined = () => {
-  socketService.onPlayerJoined((room: Room): void => {
+const voteForKick = (id: string) => {
+  socketService.voteForKick(id)
+}
+
+const onRoomDataUpdated = () => {
+  socketService.onRoomDataUpdated((room: Room): void => {
     isStartedGame.value = room.isStarted
     players.value = room.players
     isFocused.value = room.idPlayerInFocus === uuid.value
     idPlayerInFocus.value = room.idPlayerInFocus
-  })
-}
-
-const onPlayerChangeStatus = () => {
-  socketService.onPlayerChangeStatus((room: Room): void => {
-    players.value = room.players
-  })
-}
-
-const onGameStarted = () => {
-  socketService.onGameStarted((room: Room): void => {
-    players.value = room.players
-    isStartedGame.value = true
-    isFocused.value = room.idPlayerInFocus === uuid.value
-    idPlayerInFocus.value = room.idPlayerInFocus
-  })
-}
-
-const onCardUpdated = () => {
-  socketService.onCardUpdated((room: Room): void => {
-    players.value = room?.players
-    isFocused.value = room.idPlayerInFocus === uuid.value
-    idPlayerInFocus.value = room.idPlayerInFocus
+    gamePhase.value = room.gamePhase
   })
 }
 
@@ -146,9 +142,7 @@ onBeforeMount(async () => {
   if (!username.value) return
 
   socketService.init()
-  onPlayerJoined()
-  onGameStarted()
-  onCardUpdated()
+  onRoomDataUpdated()
   onGetMyCard()
 })
 
