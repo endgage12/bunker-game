@@ -15,7 +15,9 @@
             <span class="whitespace-nowrap">
               {{ card.title }}: {{ card.isRevealed ? card.value : 'Не открыто' }}
             </span>
-            <el-button v-if="!card.isRevealed" @click="revealCard(card)"> Открыть </el-button>
+            <el-button v-if="!card.isRevealed && player.id === uuid" @click="revealCard(card)">
+              Открыть
+            </el-button>
           </div>
 
           <el-button v-if="!isStartedGame" type="primary" @click="toggleReady(player)">
