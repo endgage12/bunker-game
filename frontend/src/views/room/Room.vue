@@ -1,5 +1,10 @@
 <template>
   <div class="flex flex-col items-center justify-center gap-2 flex-wrap">
+    <div v-if="isStartedGame">
+      <div v-if="isFocused">Ваш ход</div>
+      <div v-else>Ход за {{ usernamePlayerInFocus }}</div>
+    </div>
+
     <div v-if="players.length">
       <div class="flex items-center gap-2">
         <div
@@ -11,7 +16,10 @@
 
           <div class="flex items-center gap-2" v-for="(card, cI) in player.card" :key="cI">
             <span class="whitespace-nowrap"> {{ card.title }}: {{ card.value }} </span>
-            <el-button v-if="!card.isRevealed && player.id === uuid" @click="revealCard(card)">
+            <el-button
+              v-if="!card.isRevealed && player.id === uuid && isFocused"
+              @click="revealCard(card)"
+            >
               Открыть
             </el-button>
           </div>
@@ -49,9 +57,14 @@ const props = defineProps({
 })
 
 const roomStore = useRoomStore()
-const { isStartedGame, username, uuid, currentPlayer, players } = storeToRefs(roomStore)
+const { isStartedGame, username, uuid, currentPlayer, players, isFocused } = storeToRefs(roomStore)
 
 const isUsernameModalVisible = ref(false)
+const idPlayerInFocus = ref('')
+
+const usernamePlayerInFocus = computed(() => {
+  return players.value.find((p) => p.id === idPlayerInFocus.value)?.username
+})
 
 const joinRoom = () => {
   try {
@@ -72,6 +85,8 @@ const onPlayerJoined = () => {
   socketService.onPlayerJoined((room: Room): void => {
     isStartedGame.value = room.isStarted
     players.value = room.players
+    isFocused.value = room.idPlayerInFocus === uuid.value
+    idPlayerInFocus.value = room.idPlayerInFocus
   })
 }
 
@@ -85,12 +100,16 @@ const onGameStarted = () => {
   socketService.onGameStarted((room: Room): void => {
     players.value = room.players
     isStartedGame.value = true
+    isFocused.value = room.idPlayerInFocus === uuid.value
+    idPlayerInFocus.value = room.idPlayerInFocus
   })
 }
 
 const onCardUpdated = () => {
   socketService.onCardUpdated((room: Room): void => {
     players.value = room?.players
+    isFocused.value = room.idPlayerInFocus === uuid.value
+    idPlayerInFocus.value = room.idPlayerInFocus
   })
 }
 

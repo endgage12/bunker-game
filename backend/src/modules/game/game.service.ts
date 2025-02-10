@@ -15,6 +15,7 @@ export class GameService {
   private players: Player[] = [];
   private playersCards: Map<string, Card[]> = new Map();
   private isStarted: boolean = false;
+  private idPlayerInFocus: string = '';
 
   constructor(roomId: string) {
     this.roomId = roomId;
@@ -89,6 +90,21 @@ export class GameService {
         isRevealed: false,
       }));
     }
+  }
+
+  setFocusToPlayer() {
+    if (!this.players.length) return;
+    if (!this.idPlayerInFocus) {
+      this.idPlayerInFocus = this.players[0].id;
+      return;
+    }
+
+    const currentIndex = this.players.findIndex(
+      (p) => p.id === this.idPlayerInFocus,
+    );
+    const nextIndex = (currentIndex + 1) % this.players.length;
+
+    this.idPlayerInFocus = this.players[nextIndex].id;
   }
 
   getMyCard({ uuid }: { uuid: string }) {

@@ -63,6 +63,7 @@ export class GameGateway
     const roomId = client?.handshake?.auth?.roomId;
 
     await this.rooms.get(roomId)!.cardGenerate(this.settingsService);
+    this.rooms.get(roomId)!.setFocusToPlayer();
     this.server.to(roomId).emit('gameStarted', this.rooms.get(roomId));
 
     // @ts-expect-error
@@ -78,6 +79,7 @@ export class GameGateway
     const roomId = client?.handshake?.auth?.roomId;
 
     this.rooms.get(roomId)!.updateCard(client, { uuid, newData });
+    this.rooms.get(roomId)!.setFocusToPlayer();
     this.server.to(roomId).emit('onCardUpdated', this.rooms.get(roomId));
 
     // @ts-expect-error
