@@ -94,8 +94,8 @@ const onCardUpdated = () => {
   })
 }
 
-const onCardCreated = () => {
-  socketService.onCardCreated((cards: Card[]): void => {
+const onGetMyCard = () => {
+  socketService.onGetMyCard((cards: Card[]): void => {
     currentPlayer.value = { ...currentPlayer.value, card: cards }
   })
 }
@@ -130,7 +130,7 @@ onBeforeMount(async () => {
   onPlayerJoined()
   onGameStarted()
   onCardUpdated()
-  onCardCreated()
+  onGetMyCard()
 })
 
 onMounted(() => {

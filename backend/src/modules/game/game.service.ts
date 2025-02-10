@@ -111,13 +111,34 @@ export class GameService {
       return;
     }
 
+    // Обновляем состояние комнаты
     const cardFounded = this.players[playerIndex].card.find(
       (c) => c.id === newData.id,
     );
-
     if (!cardFounded) return;
 
     cardFounded.value = newData.value;
     cardFounded.isRevealed = newData.isRevealed;
+
+    // Обновляем состояние карты игрока
+    const cardFoundedPlayer = this.playersCards
+      .get(uuid)
+      ?.find((c) => c.id === newData.id);
+    if (!cardFoundedPlayer) return;
+
+    cardFoundedPlayer.value = newData.value;
+    cardFoundedPlayer.isRevealed = newData.isRevealed;
+  }
+
+  sendCardToPlayers(clients: Socket[]) {
+    clients.forEach((c) => {
+      if (!c.handshake.auth.uuid) return;
+      c.emit(
+        'onGetMyCard',
+        this.getMyCard({
+          uuid: c.handshake.auth.uuid,
+        }),
+      );
+    });
   }
 }

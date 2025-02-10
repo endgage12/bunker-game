@@ -106,8 +106,8 @@ class SocketService {
     this.socket.on('onGetRooms', callback)
   }
 
-  onCardCreated(callback: (cards: Card[]) => void) {
-    this.socket.on('onCardCreated', callback)
+  onGetMyCard(callback: (cards: Card[]) => void) {
+    this.socket.on('onGetMyCard', callback)
   }
 
   // Отправка действий
