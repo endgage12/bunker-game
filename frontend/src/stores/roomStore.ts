@@ -14,8 +14,6 @@ export const useRoomStore = defineStore('roomStore', () => {
   const currentPlayer = computed<Player>({
     get: () => players.value?.find((p) => p.id === uuid.value) || ({} as Player),
     set: (newValue) => {
-      console.log('set current player', newValue, currentPlayer.value)
-      // currentPlayer.value = newValue
       const fU = players.value?.findIndex((p) => p.id === uuid.value)
       players.value[fU] = newValue
     },

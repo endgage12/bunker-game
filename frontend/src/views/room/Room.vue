@@ -21,6 +21,7 @@
             :src="knapsack"
             style="position: absolute; margin: auto; top: 10%; opacity: 50%"
           />
+
           <div class="w-full flex items-center justify-between">
             <div class="flex items-center justify-between gap-2">
               <el-icon>
@@ -39,9 +40,13 @@
             :key="cI"
           >
             <div class="flex items-center justify-center h-8 aspect-square rounded-md bg-gray-400">
-              <el-icon>
-                <Edit />
-              </el-icon>
+              <el-popover placement="left-start" :content="card.title" trigger="hover">
+                <template #reference>
+                  <el-icon>
+                    <InfoFilled />
+                  </el-icon>
+                </template>
+              </el-popover>
             </div>
 
             <el-button
@@ -87,7 +92,7 @@
 </template>
 
 <script setup lang="ts">
-import { Edit, User } from '@element-plus/icons-vue'
+import { Edit, User, InfoFilled } from '@element-plus/icons-vue'
 import knapsack from '@/assets/images/knapsack.webp'
 import { ref, onBeforeMount, onUnmounted, onMounted, computed } from 'vue'
 import socketService from '@/services/socket.service.ts'
