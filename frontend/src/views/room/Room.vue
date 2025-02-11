@@ -8,7 +8,7 @@
     <div class="w-full" v-if="players.length">
       <div class="w-full flex items-start justify-center flex-wrap gap-2">
         <div
-          class="relative flex flex-col items-center gap-2 border rounded-lg shadow p-4 min-w-[320px] w-[calc(25%-2em)]"
+          class="relative flex flex-col items-center gap-4 border rounded-lg shadow p-4 min-w-[320px] w-[calc(25%-2em)]"
           :class="{
             'border-blue-500': player.id === uuid,
             'border-gray-300': player.id !== uuid,
@@ -75,7 +75,7 @@
       </div>
     </div>
 
-    <el-button v-if="!isStartedGame" type="primary" @click="startGame"> Start Game </el-button>
+    <el-button v-if="!isStartedGame" type="primary" @click="startGame"> Начать игру </el-button>
   </div>
 
   <el-dialog v-model="isUsernameModalVisible" :modal="true" title="Введите никнейм">
