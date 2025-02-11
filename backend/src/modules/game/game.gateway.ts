@@ -103,7 +103,10 @@ export class GameGateway
   }
 
   @SubscribeMessage('joinRoom')
-  joinRoom(client: Socket, { roomId, uuid }: { roomId: string; uuid: string }) {
+  async joinRoom(
+    client: Socket,
+    { roomId, uuid }: { roomId: string; uuid: string },
+  ) {
     const roomFounded = this.rooms.get(roomId);
     if (!roomFounded) {
       client.emit('error', 'Комната не найдена');
@@ -111,6 +114,9 @@ export class GameGateway
     }
 
     this.server.to(roomId).emit('onRoomDataUpdated', this.rooms.get(roomId));
+    // @ts-expect-error
+    const clients: Socket[] = await this.server.fetchSockets();
+    this.rooms.get(roomId)!.sendCardToPlayers(clients);
   }
 
   @SubscribeMessage('voteForKick')

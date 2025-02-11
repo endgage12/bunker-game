@@ -1,37 +1,64 @@
 <template>
   <div class="flex flex-col items-center justify-center gap-2 flex-wrap">
-    <div v-if="isStartedGame">
-      <div v-if="isFocused">Ваш ход</div>
-      <div v-else>Ход за {{ usernamePlayerInFocus }}</div>
-    </div>
+    <el-tag v-if="gamePhase === 'revealing'" type="info">
+      Обсуждение и раскрытие характеристик
+    </el-tag>
+    <el-tag v-if="gamePhase === 'voting'" type="danger">Голосование за изгнание</el-tag>
 
-    {{ gamePhase }}
-
-    <div v-if="players.length">
-      <div class="flex items-center gap-2">
+    <div class="w-full" v-if="players.length">
+      <div class="w-full flex items-start justify-center flex-wrap gap-2">
         <div
-          class="flex flex-col items-center gap-2 border rounded-lg p-4"
+          class="relative flex flex-col items-center gap-2 border rounded-lg shadow p-4 min-w-[320px] w-[calc(25%-2em)]"
+          :class="{
+            'border-blue-500': player.id === uuid,
+            'border-gray-300': player.id !== uuid,
+          }"
           v-for="player in players"
           :key="player.id"
         >
-          <span>{{ player.username }}</span>
-          <span>{{ player.kickVotes }}</span>
-          <span>Выгнан: {{ player.isKicked }}</span>
+          <el-image
+            v-if="player.isKicked"
+            :src="knapsack"
+            style="position: absolute; margin: auto; top: 10%; opacity: 50%"
+          />
+          <div class="w-full flex items-center justify-between">
+            <div class="flex items-center justify-between gap-2">
+              <el-icon>
+                <User />
+              </el-icon>
+              <el-badge :show-zero="false" :value="player.kickVotes">
+                <span>{{ player.username }}</span>
+              </el-badge>
+            </div>
+            <el-tag v-if="player.id === idPlayerInFocus" type="danger"> Ход игрока </el-tag>
+          </div>
 
-          <div class="flex items-center gap-2" v-for="(card, cI) in player.card" :key="cI">
-            <span class="whitespace-nowrap"> {{ card.title }}: {{ card.value }} </span>
+          <div
+            class="w-full flex items-start gap-2 whitespace-nowrap"
+            v-for="(card, cI) in player.card"
+            :key="cI"
+          >
+            <div class="flex items-center justify-center h-8 aspect-square rounded-md bg-gray-400">
+              <el-icon>
+                <Edit />
+              </el-icon>
+            </div>
+
             <el-button
-              v-if="
-                !card.isRevealed && player.id === uuid && isFocused && gamePhase === 'revealing'
+              class="!border-b-4 w-full"
+              :disabled="
+                card.isRevealed || player.id !== uuid || !isFocused || gamePhase !== 'revealing'
               "
               @click="revealCard(card)"
             >
-              Открыть
+              {{ card.value }}
             </el-button>
           </div>
 
           <el-button
-            v-if="player.id !== uuid && gamePhase === 'voting' && isFocused"
+            type="danger"
+            class="!border-b-4 !border-solid !border-red-700"
+            v-if="player.id !== uuid && gamePhase === 'voting' && isFocused && !player.isKicked"
             @click="voteForKick(player.id)"
           >
             Выгнать
@@ -52,6 +79,8 @@
 </template>
 
 <script setup lang="ts">
+import { Edit, User } from '@element-plus/icons-vue'
+import knapsack from '@/assets/images/knapsack.webp'
 import { ref, onBeforeMount, onUnmounted, onMounted, computed } from 'vue'
 import socketService from '@/services/socket.service.ts'
 import { useRoomStore } from '@/stores/roomStore.ts'
