@@ -15,7 +15,7 @@ const roomStore = useRoomStore()
 const { uuid } = storeToRefs(roomStore)
 
 const generateUUID = () => {
-  return window.crypto.randomUUID()
+  return Date.now().toString(36) + Math.random().toString(36).substring(2) // window.crypto.randomUUID(); работает только с https и localhost
 }
 
 onBeforeMount(() => {
