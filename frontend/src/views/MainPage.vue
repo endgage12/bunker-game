@@ -46,6 +46,8 @@ import type { SettingsMenu } from '@/types/settingsMenu.ts'
 const router = useRouter()
 const roomStore = useRoomStore()
 
+const apiURL: string = import.meta.env.VITE_APP_API_URL
+
 const menu = ref<SettingsMenu[]>([])
 const cardData = ref({})
 
@@ -58,7 +60,8 @@ const goToRoomList = () => {
 }
 
 onBeforeMount(async () => {
-  menu.value = (await axios.get('http://localhost:3000/setting')).data
+  console.log(apiURL)
+  menu.value = (await axios.get(`${apiURL}/setting`)).data
 })
 </script>
 

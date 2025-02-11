@@ -16,9 +16,10 @@ class SocketService {
   }
 
   init() {
+    const apiURL: string = import.meta.env.VITE_APP_API_URL
     this.roomStore = useRoomStore()
     const route = useRoute()
-    this.socket = io('http://localhost:3000', {
+    this.socket = io(apiURL, {
       auth: {
         roomId: route.params?.roomId,
         username: this.roomStore.username,

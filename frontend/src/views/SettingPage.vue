@@ -74,6 +74,8 @@ const { settingName } = toRefs(props)
 const router = useRouter()
 const route = useRoute()
 
+const apiURL: string = import.meta.env.VITE_APP_API_URL
+
 interface addModalData {
   title: string
   value: string
@@ -112,32 +114,30 @@ const openEditModal = (data: editModalData) => {
 }
 
 const settingCreate = async () => {
-  await axios.post(
-    `http://localhost:3000/setting/${settingName.value}/create?test=true`,
-    addModalData.value,
-  )
+  await axios.post(`${apiURL}/setting/${settingName.value}/create?test=true`, addModalData.value)
 
   addModalVisible.value = false
   settingData.value = await settingGetAll()
 }
 
 const settingUpdate = async (data: editModalData) => {
-  await axios.post(`http://localhost:3000/setting/${settingName.value}/update`, editModalData.value)
+  await axios.post(`${apiURL}/setting/${settingName.value}/update`, editModalData.value)
   editModalVisible.value = false
 }
 
 const rowRemove = async (id: number) => {
-  await axios.post(`http://localhost:3000/setting/${settingName.value}/remove`, { id })
+  await axios.post(`${apiURL}/setting/${settingName.value}/remove`, { id })
 
   settingData.value = await settingGetAll()
 }
 
 const settingGetAll = async () => {
-  const res = await axios.get(`http://localhost:3000/setting/${settingName.value}`)
+  const res = await axios.get(`${apiURL}/setting/${settingName.value}`)
   return res?.data
 }
 
 onBeforeMount(async () => {
+  console.log(apiURL)
   settingData.value = await settingGetAll()
 })
 </script>

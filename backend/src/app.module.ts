@@ -13,6 +13,7 @@ import { Setting } from './modules/settings/entities/setting.entity';
 import { Room } from './modules/rooms/entities/room.entity';
 import { RoomModule } from './modules/rooms/room.module';
 import { GameModule } from './modules/game/game.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { GameModule } from './modules/game/game.module';
     SettingsModule,
     RoomModule,
     GameModule,
+    ConfigModule.forRoot(),
   ],
   exports: [TypeOrmModule],
   controllers: [AppController, UsersController, ProfessionsController],

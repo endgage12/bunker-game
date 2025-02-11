@@ -70,9 +70,10 @@ export class GameService {
 
   async cardGenerate(settingsService: SettingsService) {
     this.isStarted = true;
+    const apiURL = process.env.API_URL;
 
     const settings =
-      <object[]>(await axios.get('http://localhost:3000/setting'))?.data || [];
+      <object[]>(await axios.get(`${apiURL}/setting`))?.data || [];
     for (const pl of this.players) {
       this.playersCards.set(
         pl.id,
