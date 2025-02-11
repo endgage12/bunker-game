@@ -63,6 +63,14 @@
           >
             Выгнать
           </el-button>
+
+          <el-button
+            v-if="player.id === uuid && isFocused && !player.isKicked"
+            class="!border-b-4 !border-solid !m-0"
+            @click="voteForKick('')"
+          >
+            Пропустить
+          </el-button>
         </div>
       </div>
     </div>
