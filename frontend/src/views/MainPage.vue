@@ -1,37 +1,37 @@
 <template>
-  <div class="flex flex-col items-center justify-between gap-2">
-    <div class="flex flex-col items-center justify-between gap-2">
-      <span>Характеристики</span>
-
-      <el-table :data="menu" style="width: 100%">
+  <div class="flex items-start justify-start gap-2">
+    <el-card class="flex flex-col items-center justify-between gap-2">
+      <el-table :data="menu" style="width: 100%; min-width: 360px">
         <el-table-column label="Характеристика" prop="title" />
+
+        <el-table-column label="Действие" align="right">
+          <template #default="scope">
+            <el-button type="primary" size="small" @click="goTo(scope.row.title)">
+              Редактировать
+            </el-button>
+          </template>
+        </el-table-column>
       </el-table>
+    </el-card>
+
+    <el-card>
+      <el-input v-model="roomStore.username" placeholder="Ваш никнейм">
+        <template #prepend>Кликуха</template>
+      </el-input>
 
       <el-button
-        class="w-64 !m-0"
-        v-for="(menuItem, mI) in menu"
-        :key="mI"
+        :disabled="!roomStore.username"
+        class="!mt-4 !m-0"
         type="primary"
-        @click="goTo(menuItem.title)"
+        @click="goToRoomList"
       >
-        {{ menuItem.title }}
+        Перейти к списку комнат
       </el-button>
-    </div>
 
-    <el-input v-model="roomStore.username" placeholder="Ваш никнейм" />
-
-    <el-button
-      :disabled="!roomStore.username"
-      class="!mt-8 !m-0"
-      type="primary"
-      @click="goToRoomList"
-    >
-      Перейти к списку комнат
-    </el-button>
-
-    <div class="flex flex-wrap items-center gap-4">
-      <Card v-for="(cardItem, cI) in cardData" :key="cI" :card-data="cardItem" />
-    </div>
+      <div class="flex flex-wrap items-center gap-4">
+        <Card v-for="(cardItem, cI) in cardData" :key="cI" :card-data="cardItem" />
+      </div>
+    </el-card>
   </div>
 </template>
 

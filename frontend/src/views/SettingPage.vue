@@ -7,7 +7,7 @@
 
       <template #extra>
         <el-button class="inline-flex" type="primary" :icon="Plus" @click="openAddModal">
-          Create {{ settingName }}
+          Добавить {{ settingName }}
         </el-button>
       </template>
     </el-page-header>
@@ -16,9 +16,9 @@
       <el-table-column prop="value" :label="settingName" />
       <el-table-column align="right">
         <template #default="scope">
-          <el-button size="small" @click="openEditModal(scope.row)"> Edit </el-button>
+          <el-button size="small" @click="openEditModal(scope.row)"> Редактировать </el-button>
           <el-button size="small" type="danger" @click="rowRemove(scope.row.id)">
-            Delete
+            Удалить
           </el-button>
         </template>
       </el-table-column>
@@ -33,26 +33,26 @@
   </div>
 
   <el-dialog class="flex flex-col gap-2" v-model="addModalVisible" :modal="true">
-    <el-input v-model="addModalData.value" placeholder="Value" />
+    <el-input v-model="addModalData.value" placeholder="Значение характеристики" />
 
     <template #footer>
       <div class="dialog-footer">
-        <el-button @click="addModalVisible = false">Cancel</el-button>
+        <el-button @click="addModalVisible = false">Отменить</el-button>
         <el-button type="primary" @click="settingCreate" @keyup.enter="settingCreate">
-          Confirm
+          Подтвердить
         </el-button>
       </div>
     </template>
   </el-dialog>
 
   <el-dialog class="flex flex-col gap-2" v-model="editModalVisible" :modal="true">
-    <el-input v-model="editModalData.value" placeholder="Value" />
+    <el-input v-model="editModalData.value" placeholder="Значение характеристики" />
 
     <template #footer>
       <div class="dialog-footer">
-        <el-button @click="editModalVisible = false">Cancel</el-button>
+        <el-button @click="editModalVisible = false">Отменить</el-button>
         <el-button type="primary" @click="settingUpdate" @keyup.enter="settingUpdate">
-          Confirm
+          Подтвердить
         </el-button>
       </div>
     </template>

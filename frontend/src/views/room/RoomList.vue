@@ -1,22 +1,31 @@
 <template>
   <div class="flex flex-col gap-2">
-    <el-page-header @back="goToMain">
-      <template #content>
-        <span class="font-600"> Список комнат </span>
-      </template>
+    <el-card>
+      <el-page-header @back="goToMain">
+        <template #content>
+          <span class="font-600"> Список комнат </span>
+        </template>
 
-      <template #extra>
-        <el-button :icon="Plus" type="primary" @click="createRoom"> Создать комнату </el-button>
-      </template>
-    </el-page-header>
+        <template #extra>
+          <el-button :icon="Plus" type="primary" @click="createRoom"> Создать комнату </el-button>
+        </template>
+      </el-page-header>
+    </el-card>
 
-    <span>Все комнаты</span>
-    <div class="flex flex-col-reverse gap-2">
-      <div v-for="(room, rI) in roomList" :key="rI" class="flex items-center gap-2">
-        <span>{{ room.roomId }}</span>
-        <el-button type="primary" @click="joinRoom(room.roomId)">Присоединиться</el-button>
+    <el-card body-class="flex flex-col gap-4">
+      <span>Все комнаты</span>
+
+      <div class="flex flex-col-reverse gap-2">
+        <div
+          v-for="(room, rI) in roomList"
+          :key="rI"
+          class="flex items-center justify-between gap-2"
+        >
+          <span>{{ room.roomId }}</span>
+          <el-button type="primary" @click="joinRoom(room.roomId)">Присоединиться</el-button>
+        </div>
       </div>
-    </div>
+    </el-card>
   </div>
 </template>
 
