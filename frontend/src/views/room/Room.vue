@@ -13,7 +13,7 @@
       <div class="w-full flex items-start justify-center flex-wrap gap-2">
         <div
           class="relative flex flex-col items-center gap-4 border rounded-lg shadow p-4 min-w-[320px] w-[calc(25%-2em)]"
-          :class="{пфь
+          :class="{
             'border-blue-500': player.id === uuid,
             'border-gray-300': player.id !== uuid,
           }"
