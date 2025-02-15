@@ -1,15 +1,19 @@
 <template>
   <div class="flex flex-col items-center justify-center gap-2 flex-wrap">
-    <el-tag v-if="gamePhase === 'revealing'" type="info">
+    <el-tag v-if="gamePhase === 'revealing' && !isEndedGame" type="info">
       Обсуждение и раскрытие характеристик
     </el-tag>
-    <el-tag v-if="gamePhase === 'voting'" type="danger">Голосование за изгнание</el-tag>
+    <el-tag v-else-if="gamePhase === 'voting' && !isEndedGame" type="danger"
+      >Голосование за изгнание</el-tag
+    >
+    <el-tag v-else-if="isEndedGame" type="success"> Игра окончена </el-tag>
+    <el-tag v-else type="warning"> Ожидание игроков </el-tag>
 
     <div class="w-full" v-if="players.length">
       <div class="w-full flex items-start justify-center flex-wrap gap-2">
         <div
           class="relative flex flex-col items-center gap-4 border rounded-lg shadow p-4 min-w-[320px] w-[calc(25%-2em)]"
-          :class="{
+          :class="{пфь
             'border-blue-500': player.id === uuid,
             'border-gray-300': player.id !== uuid,
           }"
@@ -31,7 +35,9 @@
                 <span>{{ player.username }}</span>
               </el-badge>
             </div>
-            <el-tag v-if="player.id === idPlayerInFocus" type="danger"> Ход игрока </el-tag>
+            <el-tag v-if="player.id === idPlayerInFocus && !isEndedGame" type="danger">
+              Ход игрока
+            </el-tag>
           </div>
 
           <div
@@ -52,7 +58,11 @@
             <el-button
               class="!border-b-4 w-full"
               :disabled="
-                card.isRevealed || player.id !== uuid || !isFocused || gamePhase !== 'revealing'
+                card.isRevealed ||
+                player.id !== uuid ||
+                !isFocused ||
+                gamePhase !== 'revealing' ||
+                isEndedGame
               "
               @click="openAcceptRevealModal(card)"
             >
@@ -63,14 +73,20 @@
           <el-button
             type="danger"
             class="!border-b-4 !border-solid !border-red-700"
-            v-if="player.id !== uuid && gamePhase === 'voting' && isFocused && !player.isKicked"
+            v-if="
+              player.id !== uuid &&
+              gamePhase === 'voting' &&
+              isFocused &&
+              !player.isKicked &&
+              !isEndedGame
+            "
             @click="openAcceptKickModal(player)"
           >
             Выгнать
           </el-button>
 
           <el-button
-            v-if="player.id === uuid && isFocused && !player.isKicked"
+            v-if="player.id === uuid && isFocused && !player.isKicked && !isEndedGame"
             class="!border-b-4 !border-solid !m-0"
             @click="openAcceptKickModal(null)"
           >
@@ -80,7 +96,14 @@
       </div>
     </div>
 
-    <el-button v-if="!isStartedGame" type="primary" @click="startGame"> Начать игру </el-button>
+    <el-button
+      v-if="!isStartedGame"
+      :disabled="players.length <= 2"
+      type="primary"
+      @click="startGame"
+    >
+      Начать игру
+    </el-button>
   </div>
 
   <el-dialog
@@ -164,7 +187,8 @@ const props = defineProps({
 })
 
 const roomStore = useRoomStore()
-const { isStartedGame, username, uuid, currentPlayer, players, isFocused } = storeToRefs(roomStore)
+const { isStartedGame, isEndedGame, username, uuid, currentPlayer, players, isFocused } =
+  storeToRefs(roomStore)
 
 const isUsernameModalVisible = ref(false)
 const isAcceptRevealModal = ref(false)
@@ -193,6 +217,7 @@ const voteForKick = (id: string | undefined) => {
 const onRoomDataUpdated = () => {
   socketService.onRoomDataUpdated((room: Room): void => {
     isStartedGame.value = room.isStarted
+    isEndedGame.value = room.isEnded
     players.value = room.players
     isFocused.value = room.idPlayerInFocus === uuid.value
     idPlayerInFocus.value = room.idPlayerInFocus

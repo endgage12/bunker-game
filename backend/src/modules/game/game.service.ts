@@ -15,6 +15,7 @@ export class GameService {
   private players: Player[] = [];
   private playersCards: Map<string, Card[]> = new Map();
   private isStarted: boolean = false;
+  private isEnded: boolean = false;
   private idPlayerInFocus: string = '';
   private gamePhase: string = 'lobby';
 
@@ -98,6 +99,10 @@ export class GameService {
 
   setGamePhase(phase: string) {
     this.gamePhase = phase;
+  }
+
+  finishGame() {
+    this.isEnded = true;
   }
 
   setFocusToPlayer() {
@@ -208,5 +213,9 @@ export class GameService {
         }),
       );
     });
+  }
+
+  getActivePlayers() {
+    return this.players.filter((p) => !p.isKicked);
   }
 }

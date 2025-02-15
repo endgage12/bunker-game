@@ -9,6 +9,7 @@ export const useRoomStore = defineStore('roomStore', () => {
   const uuid = useStorage<string>('my-uuid', '')
   const players = ref<Player[]>([])
   const isStartedGame = ref<boolean>(false)
+  const isEndedGame = ref<boolean>(false)
   const isFocused = ref<boolean>(false)
 
   const currentPlayer = computed<Player>({
@@ -19,5 +20,5 @@ export const useRoomStore = defineStore('roomStore', () => {
     },
   })
 
-  return { currentPlayer, username, players, isStartedGame, uuid, isFocused }
+  return { currentPlayer, username, players, isStartedGame, isEndedGame, isFocused, uuid }
 })

@@ -129,11 +129,17 @@ export class GameGateway
     }
 
     roomFounded.voteForKick(client, { playerId });
-    this.rooms.get(roomId)!.setFocusToPlayer();
-    this.server.to(roomId).emit('onRoomDataUpdated', this.rooms.get(roomId));
+    roomFounded.setFocusToPlayer();
+    this.server.to(roomId).emit('onRoomDataUpdated', roomFounded);
 
     // @ts-expect-error
     const clients: Socket[] = await this.server.fetchSockets();
-    this.rooms.get(roomId)!.sendCardToPlayers(clients);
+    roomFounded.sendCardToPlayers(clients);
+
+    const activePlayers = roomFounded.getActivePlayers().length;
+    if (activePlayers <= 2) {
+      roomFounded.finishGame();
+      this.server.to(roomId).emit('onRoomDataUpdated', roomFounded);
+    }
   }
 }
