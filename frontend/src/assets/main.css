@@ -4,6 +4,10 @@
 #app {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 8px;
   font-weight: normal;
+
+  @media (min-width: 640px) {
+    padding: 32px;
+  }
 }

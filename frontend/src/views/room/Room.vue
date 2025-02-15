@@ -54,7 +54,7 @@
               :disabled="
                 card.isRevealed || player.id !== uuid || !isFocused || gamePhase !== 'revealing'
               "
-              @click="revealCard(card)"
+              @click="openAcceptRevealModal(card)"
             >
               {{ card.value }}
             </el-button>
@@ -64,7 +64,7 @@
             type="danger"
             class="!border-b-4 !border-solid !border-red-700"
             v-if="player.id !== uuid && gamePhase === 'voting' && isFocused && !player.isKicked"
-            @click="voteForKick(player.id)"
+            @click="openAcceptKickModal(player)"
           >
             Выгнать
           </el-button>
@@ -72,7 +72,7 @@
           <el-button
             v-if="player.id === uuid && isFocused && !player.isKicked"
             class="!border-b-4 !border-solid !m-0"
-            @click="voteForKick('')"
+            @click="openAcceptKickModal(null)"
           >
             Пропустить
           </el-button>
@@ -82,6 +82,62 @@
 
     <el-button v-if="!isStartedGame" type="primary" @click="startGame"> Начать игру </el-button>
   </div>
+
+  <el-dialog
+    v-if="!isMobile"
+    v-model="isAcceptKickModal"
+    :modal="true"
+    :title="`Вы уверены, что хотите ${acceptKickModalData?.id ? `выгнать игрока ${acceptKickModalData.username}` : 'пропустить голосование'}?`"
+  >
+    <div class="flex items-center justify-between gap-2">
+      <el-button class="w-1/2" @click="closeAcceptKickModal"> Нет </el-button>
+      <el-button class="w-1/2" type="primary" @click="voteForKick(acceptKickModalData?.id)">
+        Да
+      </el-button>
+    </div>
+  </el-dialog>
+
+  <el-drawer
+    v-if="isMobile"
+    v-model="isAcceptKickModal"
+    :title="`Вы уверены, что хотите ${acceptKickModalData?.id ? `выгнать игрока ${acceptKickModalData.username}` : 'пропустить голосование'}?`"
+    direction="btt"
+  >
+    <div class="flex items-center justify-between gap-2">
+      <el-button class="w-1/2" @click="closeAcceptKickModal"> Нет </el-button>
+      <el-button class="w-1/2" type="primary" @click="voteForKick(acceptKickModalData?.id)">
+        Да
+      </el-button>
+    </div>
+  </el-drawer>
+
+  <el-dialog
+    v-if="!isMobile"
+    v-model="isAcceptRevealModal"
+    :modal="true"
+    title="Вы уверены, что хотите открыть эту характеристику?"
+  >
+    <div class="flex items-center justify-between gap-2">
+      <el-button class="w-1/2" @click="closeAcceptDecisionModal"> Нет </el-button>
+      <el-button class="w-1/2" type="primary" @click="revealCard(acceptRevealModalData)">
+        Да
+      </el-button>
+    </div>
+  </el-dialog>
+
+  <el-drawer
+    v-if="isMobile"
+    v-model="isAcceptRevealModal"
+    title="Вы уверены, что хотите открыть эту характеристику?"
+    direction="btt"
+  >
+    <div class="flex items-center justify-between gap-2">
+      <el-button class="w-1/2" @click="closeAcceptDecisionModal"> Нет </el-button>
+      <el-button class="w-1/2" type="primary" @click="revealCard(acceptRevealModalData)">
+        Да
+      </el-button>
+    </div>
+  </el-drawer>
 
   <el-dialog v-model="isUsernameModalVisible" :modal="true" title="Введите никнейм">
     <el-input v-model="username" placeholder="Ваш никнейм" />
@@ -101,6 +157,7 @@ import { storeToRefs } from 'pinia'
 import router from '@/router'
 import type { Card } from '@/types/cardType.ts'
 import type { Room } from '@/types/roomType.ts'
+import type { Player } from '@/types/playerType.ts'
 
 const props = defineProps({
   roomId: { type: String, required: true },
@@ -110,8 +167,13 @@ const roomStore = useRoomStore()
 const { isStartedGame, username, uuid, currentPlayer, players, isFocused } = storeToRefs(roomStore)
 
 const isUsernameModalVisible = ref(false)
+const isAcceptRevealModal = ref(false)
+const isAcceptKickModal = ref(false)
 const gamePhase = ref('')
 const idPlayerInFocus = ref('')
+const acceptRevealModalData = ref<Card | null>(null)
+const acceptKickModalData = ref<Player | null>(null)
+const isMobile = ref(false)
 
 const usernamePlayerInFocus = computed(
   () => players.value.find((p) => p.id === idPlayerInFocus.value)?.username,
@@ -123,8 +185,9 @@ const joinRoom = () => {
   socketService.joinRoom(props.roomId, username.value)
 }
 
-const voteForKick = (id: string) => {
+const voteForKick = (id: string | undefined) => {
   socketService.voteForKick(id)
+  closeAcceptKickModal()
 }
 
 const onRoomDataUpdated = () => {
@@ -147,9 +210,33 @@ const startGame = () => {
   socketService.startGame()
 }
 
-const revealCard = (card: Card) => {
+const openAcceptRevealModal = (card: Card) => {
+  acceptRevealModalData.value = card
+  isAcceptRevealModal.value = true
+}
+
+const closeAcceptDecisionModal = () => {
+  acceptRevealModalData.value = null
+  isAcceptRevealModal.value = false
+}
+
+const openAcceptKickModal = (player: Player | null) => {
+  acceptKickModalData.value = player
+  isAcceptKickModal.value = true
+}
+
+const closeAcceptKickModal = () => {
+  acceptKickModalData.value = null
+  isAcceptKickModal.value = false
+}
+
+const revealCard = (card: Card | null) => {
+  if (!card) return
+
   card.isRevealed = true
   updateCard(card)
+  acceptRevealModalData.value = null
+  isAcceptRevealModal.value = false
 }
 
 const updateCard = (card: Card) => {
@@ -161,6 +248,7 @@ const reloadPage = () => {
 }
 
 onBeforeMount(async () => {
+  isMobile.value = window.innerWidth < 768
   isUsernameModalVisible.value = !username.value
   if (!username.value) return
 

@@ -7,13 +7,15 @@
         </template>
 
         <template #extra>
-          <el-button :icon="Plus" type="primary" @click="createRoom"> Создать комнату </el-button>
+          <el-button :icon="Plus" type="primary" @click="createRoom"> Создать </el-button>
         </template>
       </el-page-header>
     </el-card>
 
     <el-card body-class="flex flex-col gap-4">
       <span>Все комнаты</span>
+
+      <el-empty v-if="!roomList.length" description="Нет доступных комнат" />
 
       <div class="flex flex-col-reverse gap-2">
         <div

@@ -46,7 +46,7 @@ class SocketService {
     this.socket.emit('joinRoom', { roomId, username })
   }
 
-  voteForKick(playerId: string) {
+  voteForKick(playerId: string | undefined) {
     if (!this.socket) return
     this.socket.emit('voteForKick', { playerId })
   }

@@ -1,6 +1,6 @@
 <template>
   <div class="flex items-start justify-start gap-2">
-    <el-card class="flex flex-col items-center justify-between gap-2">
+    <el-card class="hidden sm:flex flex-col items-center justify-between gap-2">
       <el-table :data="menu" style="width: 100%; min-width: 360px">
         <el-table-column label="Характеристика" prop="title" />
 
