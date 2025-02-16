@@ -4,7 +4,8 @@
       <span v-if="disaster?.title">{{ disaster.title }}</span>
 
       <el-popover
-        class="box-item"
+        v-if="disaster?.title"
+        width="320"
         effect="dark"
         :content="disaster?.description"
         placement="bottom-start"
@@ -31,7 +32,7 @@
     <div class="w-full" v-if="players.length">
       <div class="w-full flex items-start justify-center flex-wrap gap-2">
         <div
-          class="relative flex flex-col items-center gap-4 border rounded-lg shadow p-4 min-w-[320px] w-[calc(25%-2em)]"
+          class="relative flex flex-col items-center gap-4 border rounded-lg shadow p-4 min-w-[320px] w-[calc(25%-2em)] min-h-[360px]"
           :class="{
             'border-blue-500': player.id === uuid,
             'border-gray-300': player.id !== uuid,
