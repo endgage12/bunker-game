@@ -1,35 +1,41 @@
 <template>
   <div class="flex flex-col gap-2 w-full">
-    <el-page-header @back="goToMain">
-      <template #content>
-        <span class="font-600"> Параметры игры </span>
-      </template>
+    <el-card>
+      <el-page-header @back="goToMain">
+        <template #content>
+          <span class="font-600"> Параметры игры </span>
+        </template>
 
-      <template #extra>
-        <el-button class="inline-flex" type="primary" :icon="Plus" @click="openAddModal">
-          Добавить {{ settingName }}
-        </el-button>
-      </template>
-    </el-page-header>
-
-    <el-table :data="settingData" style="width: 100%">
-      <el-table-column prop="value" :label="settingName" />
-      <el-table-column align="right">
-        <template #default="scope">
-          <el-button size="small" @click="openEditModal(scope.row)"> Редактировать </el-button>
-          <el-button size="small" type="danger" @click="rowRemove(scope.row.id)">
-            Удалить
+        <template #extra>
+          <el-button class="inline-flex" type="primary" :icon="Plus" @click="openAddModal">
+            Добавить {{ settingName }}
           </el-button>
         </template>
-      </el-table-column>
-    </el-table>
+      </el-page-header>
+    </el-card>
 
-    <el-pagination
-      v-model:current-page="paginationCurrentPage"
-      background
-      layout="prev, pager, next"
-      :total="settingData.length"
-    />
+    <el-card>
+      <el-table :data="settingData" style="width: 100%">
+        <el-table-column prop="value" :label="settingName" />
+        <el-table-column align="right">
+          <template #default="scope">
+            <el-button size="small" @click="openEditModal(scope.row)"> Редактировать </el-button>
+            <el-button size="small" type="danger" @click="rowRemove(scope.row.id)">
+              Удалить
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-card>
+
+    <el-card>
+      <el-pagination
+        v-model:current-page="paginationCurrentPage"
+        background
+        layout="prev, pager, next"
+        :total="settingData.length"
+      />
+    </el-card>
   </div>
 
   <el-dialog class="flex flex-col gap-2" v-model="addModalVisible" :modal="true">

@@ -1,4 +1,5 @@
 import type { Player } from './playerType'
+import type { Disaster } from '@/types/disasterType.ts'
 
 export interface Room {
   roomId: string
@@ -6,5 +7,6 @@ export interface Room {
   isEnded: boolean
   idPlayerInFocus: string
   gamePhase: string
+  disaster: Disaster
   players: Player[]
 }

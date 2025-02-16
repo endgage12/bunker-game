@@ -66,6 +66,7 @@ export class GameGateway
     if (!roomId) return;
 
     await this.rooms.get(roomId)!.cardGenerate(this.settingsService);
+    this.rooms.get(roomId)!.disasterGenerate();
     this.rooms.get(roomId)!.setFocusToPlayer();
     this.rooms.get(roomId)!.setGamePhase('revealing');
     this.server.to(roomId).emit('onRoomDataUpdated', this.rooms.get(roomId));

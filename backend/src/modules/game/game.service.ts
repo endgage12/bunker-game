@@ -2,6 +2,8 @@ import { Socket } from 'socket.io';
 import { Player } from '../../schemes/Player';
 import { SettingsService } from '../settings/setting.service';
 import axios from 'axios';
+import { causesOfDisaster } from '../../localbase/disasters';
+import type { Disaster } from '../../schemes/Disaster';
 
 export interface Card {
   id: number;
@@ -12,6 +14,7 @@ export interface Card {
 
 export class GameService {
   private roomId: string;
+  private disaster: Disaster | null = null;
   private players: Player[] = [];
   private playersCards: Map<string, Card[]> = new Map();
   private isStarted: boolean = false;
@@ -68,6 +71,11 @@ export class GameService {
     player.leave(this.roomId);
     console.log(`Removed player: ${uuid}`);
   };
+
+  disasterGenerate() {
+    const randomIndex = Math.floor(Math.random() * causesOfDisaster.length);
+    this.disaster = causesOfDisaster[randomIndex];
+  }
 
   async cardGenerate(settingsService: SettingsService) {
     this.isStarted = true;

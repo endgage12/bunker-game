@@ -1,5 +1,24 @@
 <template>
   <div class="flex flex-col items-center justify-center gap-2 flex-wrap">
+    <div class="flex items-center gap-2">
+      <span v-if="disaster?.title">{{ disaster.title }}</span>
+
+      <el-popover
+        class="box-item"
+        effect="dark"
+        :content="disaster?.description"
+        placement="bottom-start"
+      >
+        <template #reference>
+          <el-button
+            class="aspect-square w-[24px] h-[24px]"
+            size="small"
+            :icon="InfoFilled"
+          ></el-button>
+        </template>
+      </el-popover>
+    </div>
+
     <el-tag v-if="gamePhase === 'revealing' && !isEndedGame" type="info">
       Обсуждение и раскрытие характеристик
     </el-tag>
@@ -181,6 +200,7 @@ import router from '@/router'
 import type { Card } from '@/types/cardType.ts'
 import type { Room } from '@/types/roomType.ts'
 import type { Player } from '@/types/playerType.ts'
+import type { Disaster } from '@/types/disasterType.ts'
 
 const props = defineProps({
   roomId: { type: String, required: true },
@@ -193,11 +213,12 @@ const { isStartedGame, isEndedGame, username, uuid, currentPlayer, players, isFo
 const isUsernameModalVisible = ref(false)
 const isAcceptRevealModal = ref(false)
 const isAcceptKickModal = ref(false)
+const isMobile = ref(false)
+const disaster = ref<Disaster | null>(null)
 const gamePhase = ref('')
 const idPlayerInFocus = ref('')
 const acceptRevealModalData = ref<Card | null>(null)
 const acceptKickModalData = ref<Player | null>(null)
-const isMobile = ref(false)
 
 const usernamePlayerInFocus = computed(
   () => players.value.find((p) => p.id === idPlayerInFocus.value)?.username,
@@ -218,9 +239,10 @@ const onRoomDataUpdated = () => {
   socketService.onRoomDataUpdated((room: Room): void => {
     isStartedGame.value = room.isStarted
     isEndedGame.value = room.isEnded
-    players.value = room.players
     isFocused.value = room.idPlayerInFocus === uuid.value
     idPlayerInFocus.value = room.idPlayerInFocus
+    players.value = room.players
+    disaster.value = room.disaster
     gamePhase.value = room.gamePhase
   })
 }
