@@ -11,6 +11,7 @@ export const useRoomStore = defineStore('roomStore', () => {
   const isStartedGame = ref<boolean>(false)
   const isEndedGame = ref<boolean>(false)
   const isFocused = ref<boolean>(false)
+  const chatGptData = ref<string>('')
 
   const currentPlayer = computed<Player>({
     get: () => players.value?.find((p) => p.id === uuid.value) || ({} as Player),
@@ -20,5 +21,14 @@ export const useRoomStore = defineStore('roomStore', () => {
     },
   })
 
-  return { currentPlayer, username, players, isStartedGame, isEndedGame, isFocused, uuid }
+  return {
+    currentPlayer,
+    username,
+    players,
+    isStartedGame,
+    isEndedGame,
+    isFocused,
+    uuid,
+    chatGptData,
+  }
 })

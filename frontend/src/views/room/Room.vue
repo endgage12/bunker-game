@@ -20,14 +20,19 @@
       </el-popover>
     </div>
 
-    <el-tag v-if="gamePhase === 'revealing' && !isEndedGame" type="info">
-      Обсуждение и раскрытие характеристик
-    </el-tag>
-    <el-tag v-else-if="gamePhase === 'voting' && !isEndedGame" type="danger"
-      >Голосование за изгнание</el-tag
-    >
-    <el-tag v-else-if="isEndedGame" type="success"> Игра окончена </el-tag>
-    <el-tag v-else type="warning"> Ожидание игроков </el-tag>
+    <div class="flex items-center justify-center gap-2">
+      <el-tag v-if="gamePhase === 'revealing' && !isEndedGame" type="info">
+        Обсуждение и раскрытие характеристик
+      </el-tag>
+      <el-tag v-else-if="gamePhase === 'voting' && !isEndedGame" type="danger">
+        Голосование за изгнание
+      </el-tag>
+      <el-tag v-else-if="isEndedGame" type="success"> Игра окончена </el-tag>
+      <el-tag v-else type="warning"> Ожидание игроков </el-tag>
+      <el-button v-if="chatGptData" type="warning" @click="isIncidentShowModal = true" size="small">
+        А
+      </el-button>
+    </div>
 
     <div class="w-full" v-if="players.length">
       <div class="w-full flex items-start justify-center flex-wrap gap-2">
@@ -182,6 +187,28 @@
     </div>
   </el-drawer>
 
+  <el-dialog
+    v-if="!isMobile"
+    v-model="isIncidentShowModal"
+    :modal="true"
+    title="Внимание! Происшествие!"
+  >
+    <div class="flex items-center justify-between gap-2">
+      {{ chatGptData }}
+    </div>
+  </el-dialog>
+
+  <el-drawer
+    v-if="isMobile"
+    v-model="isIncidentShowModal"
+    title="Внимание! Происшествие!"
+    direction="btt"
+  >
+    <div class="flex items-center justify-between gap-2">
+      {{ chatGptData }}
+    </div>
+  </el-drawer>
+
   <el-dialog v-model="isUsernameModalVisible" :modal="true" title="Введите никнейм">
     <el-input v-model="username" placeholder="Ваш никнейм" />
     <template v-slot:footer>
@@ -193,7 +220,7 @@
 <script setup lang="ts">
 import { Edit, User, InfoFilled } from '@element-plus/icons-vue'
 import knapsack from '@/assets/images/knapsack.webp'
-import { ref, onBeforeMount, onUnmounted, onMounted, computed } from 'vue'
+import { ref, onBeforeMount, onUnmounted, onMounted, computed, watch } from 'vue'
 import socketService from '@/services/socket.service.ts'
 import { useRoomStore } from '@/stores/roomStore.ts'
 import { storeToRefs } from 'pinia'
@@ -202,18 +229,31 @@ import type { Card } from '@/types/cardType.ts'
 import type { Room } from '@/types/roomType.ts'
 import type { Player } from '@/types/playerType.ts'
 import type { Disaster } from '@/types/disasterType.ts'
+import { useChatGpt } from '@/utilities/useChatGpt.ts'
 
 const props = defineProps({
   roomId: { type: String, required: true },
 })
 
 const roomStore = useRoomStore()
-const { isStartedGame, isEndedGame, username, uuid, currentPlayer, players, isFocused } =
-  storeToRefs(roomStore)
+const {
+  isStartedGame,
+  isEndedGame,
+  username,
+  uuid,
+  currentPlayer,
+  players,
+  isFocused,
+  chatGptData,
+} = storeToRefs(roomStore)
+
+const chatGpt = useChatGpt()
+const { sendMessage } = chatGpt
 
 const isUsernameModalVisible = ref(false)
 const isAcceptRevealModal = ref(false)
 const isAcceptKickModal = ref(false)
+const isIncidentShowModal = ref(false)
 const isMobile = ref(false)
 const disaster = ref<Disaster | null>(null)
 const gamePhase = ref('')
@@ -245,6 +285,9 @@ const onRoomDataUpdated = () => {
     players.value = room.players
     disaster.value = room.disaster
     gamePhase.value = room.gamePhase
+    chatGptData.value = room.chatGptData
+
+    if (chatGptData.value !== room.chatGptData) isIncidentShowModal.value = true
   })
 }
 

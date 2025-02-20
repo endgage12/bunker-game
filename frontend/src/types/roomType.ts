@@ -7,6 +7,7 @@ export interface Room {
   isEnded: boolean
   idPlayerInFocus: string
   gamePhase: string
+  chatGptData: string
   disaster: Disaster
   players: Player[]
 }

@@ -9,6 +9,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { GameService, Card } from './game.service';
 import { SettingsService } from '../settings/setting.service';
+import { prompts } from '../../utilities/prompts';
 
 @WebSocketGateway({ cors: true })
 export class GameGateway
@@ -141,6 +142,11 @@ export class GameGateway
     if (activePlayers <= 2) {
       roomFounded.finishGame();
       this.server.to(roomId).emit('onRoomDataUpdated', roomFounded);
+    }
+
+    if (activePlayers === 4) {
+      const promptText = prompts['outsideIncident'];
+      await this.rooms.get(roomId)!.sendMessageToGpt(promptText);
     }
   }
 }

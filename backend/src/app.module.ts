@@ -14,6 +14,8 @@ import { Room } from './modules/rooms/entities/room.entity';
 import { RoomModule } from './modules/rooms/room.module';
 import { GameModule } from './modules/game/game.module';
 import { ConfigModule } from '@nestjs/config';
+import { ChatgptService } from './modules/chatgpt/chatgpt.service';
+import { ChatgptModule } from './modules/chatgpt/chatgpt.module';
 
 @Module({
   imports: [
@@ -31,10 +33,11 @@ import { ConfigModule } from '@nestjs/config';
     SettingsModule,
     RoomModule,
     GameModule,
+    ChatgptModule,
     ConfigModule.forRoot(),
   ],
   exports: [TypeOrmModule],
   controllers: [AppController, UsersController, ProfessionsController],
-  providers: [AppService, ProfessionsService],
+  providers: [AppService, ProfessionsService, ChatgptService],
 })
 export class AppModule {}

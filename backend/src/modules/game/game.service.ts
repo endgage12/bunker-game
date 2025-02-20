@@ -3,6 +3,7 @@ import { Player } from '../../schemes/Player';
 import { SettingsService } from '../settings/setting.service';
 import axios from 'axios';
 import { causesOfDisaster } from '../../localbase/disasters';
+import { sendMessage } from '../../utilities/chatGpt';
 import type { Disaster } from '../../schemes/Disaster';
 
 export interface Card {
@@ -21,6 +22,7 @@ export class GameService {
   private isEnded: boolean = false;
   private idPlayerInFocus: string = '';
   private gamePhase: string = 'lobby';
+  private chatGptData: string = '';
 
   constructor(roomId: string) {
     this.roomId = roomId;
@@ -75,6 +77,13 @@ export class GameService {
   disasterGenerate() {
     const randomIndex = Math.floor(Math.random() * causesOfDisaster.length);
     this.disaster = causesOfDisaster[randomIndex];
+  }
+
+  async sendMessageToGpt(promptText: string) {
+    this.chatGptData = await sendMessage(promptText, {
+      playersCards: this.playersCards,
+      disaster: this.disaster,
+    });
   }
 
   async cardGenerate(settingsService: SettingsService) {
