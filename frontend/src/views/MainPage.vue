@@ -60,7 +60,7 @@ const goToRoomList = () => {
 }
 
 onBeforeMount(async () => {
-  console.log(apiURL)
+  console.log(`'v0.1' ${apiURL}`)
   menu.value = (await axios.get(`${apiURL}/setting`)).data
 })
 </script>
