@@ -8,7 +8,7 @@ export interface Card {
   value: string;
 }
 
-const apiUrl = process.env.API_URL || 'http://localhost:3000';
+const apiUrl = process.env.API_URL || 'https://krolpluskrosh.online/api';
 
 export const sendMessage = async (
   promptText: string,
